@@ -9,7 +9,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
-        id("org.springframework.boot") version "3.3.0"
+    id("org.springframework.boot") version "3.3.0"
     java
 }
 
@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     // This dependency is used by the application.
-    implementation(libs.guava)
+    implementation("com.google.guava:guava:32.1.2-jre")
 
     // Spring Boot starters
     implementation("org.springframework.boot:spring-boot-starter:3.3.0")
@@ -45,6 +45,12 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.0")
     testImplementation("org.mockito:mockito-core:5.2.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")
+
+    // Jakarta Persistence API
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+
+    // Jakarta Validation API
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 }
 
 testing {
