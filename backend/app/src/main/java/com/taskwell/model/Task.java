@@ -78,6 +78,14 @@ public class Task {
         return description;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
