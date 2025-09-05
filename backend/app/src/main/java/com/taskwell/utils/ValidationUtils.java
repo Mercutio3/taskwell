@@ -5,13 +5,19 @@ public class ValidationUtils {
     // Validation methods for User entity
 
     public static boolean isValidEmail(String email) {
-        String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\\\.[A-Za-z0-9_-]+)*@\" \n" + //
-                "        + \"[^-][A-Za-z0-9-]+(\\\\.[A-Za-z0-9-]+)*(\\\\.[A-Za-z]{2,})$";
+        // Format example@domain.something
+        String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
         return email != null && email.matches(emailRegex);
     }
 
     public static boolean isValidUsername(String username) {
-        return username != null && username.length() >= 3 && username.length() <= 50;
+        // Allow alphanumeric characters, dots, and underscores; no consecutive
+        // dots/underscores
+        String userRegex = "^(?!.*([_.])\\1)[a-zA-Z0-9._]+$";
+        if (username == null || !username.matches(userRegex)) {
+            return false;
+        }
+        return username.length() >= 3 && username.length() <= 50;
     }
 
     public static boolean isValidPassword(String password) {

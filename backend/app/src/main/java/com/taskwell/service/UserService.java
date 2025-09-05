@@ -30,7 +30,6 @@ public class UserService {
 
     // Register new user
     public User registerUser(User user) {
-        logger.info("Registering user: " + user.getUsername());
 
         // Hash password
         if (user.getPassword() != null) {
@@ -50,17 +49,17 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email format");
         }
 
-        // Check if username or email already exists
-        if (isUsernameTaken(user.getUsername()) || isEmailTaken(user.getEmail())) {
-            throw new IllegalArgumentException("Username or email already taken");
-        }
-
         // Check password strength
         if (!ValidationUtils.isValidPassword(user.getPassword())) {
             throw new IllegalArgumentException("Password does not meet strength requirements");
         }
 
-        logger.info("User registered: " + user.getUsername());
+        // Check if username or email already exists
+        if (isUsernameTaken(user.getUsername()) || isEmailTaken(user.getEmail())) {
+            throw new IllegalArgumentException("Username or email already taken");
+        }
+
+        logger.info("User registered: {}", user.getUsername());
         return userRepository.save(user);
     }
 
@@ -82,87 +81,70 @@ public class UserService {
     // Update user details
     public User changeUsername(Long id, String newUsername) {
         User user = findByID(id);
-        if (user != null && !isUsernameTaken(newUsername)) {
-            if (!ValidationUtils.isValidUsername(newUsername)) {
-                throw new IllegalArgumentException("Invalid username");
+        if (ValidationUtils.isValidUsername(newUsername)) {
+            if (!isUsernameTaken(newUsername)) {
+                user.setUsername(newUsername);
+                logger.info("Username changed for user ID: {} to new username: {}", id, newUsername);
+                return userRepository.save(user);
             }
-            user.setUsername(newUsername);
-            logger.info("Username changed for user ID: " + id + " to new username: " + newUsername);
-            return userRepository.save(user);
+            throw new IllegalArgumentException("Username taken");
         }
-        logger.error("Username change failed for user ID: " + id + ". Was the username taken? "
-                + isUsernameTaken(newUsername));
-        return null;
+        throw new IllegalArgumentException("Invalid username");
     }
 
     public User changeEmail(Long id, String newEmail) {
         User user = findByID(id);
-        if (user != null && !isEmailTaken(newEmail)) {
-            if (!ValidationUtils.isValidEmail(newEmail)) {
-                throw new IllegalArgumentException("Invalid email format");
+        if (ValidationUtils.isValidEmail(newEmail)) {
+            if (!isEmailTaken(newEmail)) {
+                user.setEmail(newEmail);
+                logger.info("Email changed for user: {} to new email: {}", user.getUsername(), newEmail);
+                return userRepository.save(user);
             }
-            user.setEmail(newEmail);
-            logger.info("Email changed for user: " + user.getUsername() + " to new email: " + newEmail);
-            return userRepository.save(user);
+            throw new IllegalArgumentException("Email taken");
         }
-        logger.error("Email change failed for user ID: " + id + ". Was the email taken? " + isEmailTaken(newEmail));
-        return null;
+        throw new IllegalArgumentException("Invalid email format");
     }
 
     @Transactional
     public User changeRole(Long id, String newRole) {
         User user = findByID(id);
-        if (user != null) {
-            user.setRole(newRole);
-            logger.info("Set role " + newRole + " for user: " + user.getUsername());
-            return userRepository.save(user);
-        }
-        logger.error("Role change failed for user ID: " + id + ". User not found.");
-        return null;
+        user.setRole(newRole);
+        logger.info("Set role {} for user: {}", newRole, user.getUsername());
+        return userRepository.save(user);
     }
 
     // Delete user account
     public boolean deleteUser(Long id) {
-        User user = findByID(id);
-        if (user != null) {
-            userRepository.delete(user);
-            logger.info("User deleted: " + user.getUsername());
-            return true;
-        }
-        logger.error("User deletion failed for user ID: " + id + ". User not found.");
-        return false;
+        User user = findByID(id); // will throw if not found
+        userRepository.delete(user);
+        logger.info("User deleted: {}", user.getUsername());
+        return true;
     }
 
     @Transactional
     // Lock/unlock user account
     public void toggleUserLocked(Long id) {
-        User user = findByID(id);
-        if (user != null) {
-            user.setLocked(!user.isLocked());
-            logger.info("User " + (user.isLocked() ? "locked: " : "unlocked: ") + user.getUsername());
-            userRepository.save(user);
-        }
+        User user = findByID(id); // will throw if not found
+        user.setLocked(!user.isLocked());
+        logger.info("User {} {}", user.isLocked() ? "locked:" : "unlocked:", user.getUsername());
+        userRepository.save(user);
     }
 
     @Transactional
     // Enable/disable user account
     public void toggleUserEnabled(Long id) {
-        User user = findByID(id);
-        if (user != null) {
-            user.setEnabled(!user.isEnabled());
-            logger.info("User " + (user.isEnabled() ? "enabled: " : "disabled: ") + user.getUsername());
-            userRepository.save(user);
-        }
+        User user = findByID(id); // will throw if not found
+        user.setEnabled(!user.isEnabled());
+        logger.info("User {} {}", user.isEnabled() ? "enabled:" : "disabled:", user.getUsername());
+        userRepository.save(user);
     }
 
     // Assign roles to users
     public void assignRole(Long id, String role) {
-        User user = findByID(id);
-        if (user != null) {
-            user.setRole(role);
-            logger.info("Assigned role " + role + " to user: " + user.getUsername());
-            userRepository.save(user);
-        }
+        User user = findByID(id); // will throw if not found
+        user.setRole(role);
+        logger.info("Assigned role {} to user: {}", role, user.getUsername());
+        userRepository.save(user);
     }
 
     // Check if user or email is already taken
@@ -183,16 +165,12 @@ public class UserService {
 
     // Change / reset password
     public User changePassword(Long id, String newPassword) {
-        User user = findByID(id);
-        if (user != null) {
-            if (!ValidationUtils.isValidPassword(newPassword)) {
-                throw new IllegalArgumentException("Password does not meet strength requirements");
-            }
-            user.setPassword(passwordEncoder.encode(newPassword));
-            logger.info("Password changed for user: " + user.getUsername());
-            return userRepository.save(user);
+        User user = findByID(id); // will throw if not found
+        if (!ValidationUtils.isValidPassword(newPassword)) {
+            throw new IllegalArgumentException("Password does not meet strength requirements");
         }
-        logger.error("Password change failed for user ID: " + id + ". User not found.");
-        return null;
+        user.setPassword(passwordEncoder.encode(newPassword));
+        logger.info("Password changed for user: {}", user.getUsername());
+        return userRepository.save(user);
     }
 }
