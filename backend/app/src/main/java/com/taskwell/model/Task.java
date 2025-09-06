@@ -32,7 +32,7 @@ public class Task {
     @ManyToOne
     private User user; // The user to whom the task is assigned
 
-    private String status; // Pending, In Progress, Completed..
+    private TaskStatus status; // Pending, In Progress, Completed..
     private boolean completed;
     private LocalDateTime dueDate;
 
@@ -42,7 +42,7 @@ public class Task {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    private int priority; // 1 (Low), 2 (Medium), 3 (High)
+    private TaskPriority priority; // LOW, MEDIUM, HIGH
     private String category; // e.g., Work, Personal, Shopping, etc.
 
     // No-args constructor required by JPA
@@ -86,11 +86,11 @@ public class Task {
         return user;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
@@ -110,11 +110,11 @@ public class Task {
         return dueDate;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(TaskPriority priority) {
         this.priority = priority;
     }
 
-    public int getPriority() {
+    public TaskPriority getPriority() {
         return priority;
     }
 

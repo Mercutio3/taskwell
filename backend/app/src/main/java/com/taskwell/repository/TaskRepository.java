@@ -7,6 +7,8 @@ import com.taskwell.model.Task;
 import java.util.List;
 import com.taskwell.model.User;
 import java.time.LocalDateTime;
+import com.taskwell.model.TaskStatus;
+import com.taskwell.model.TaskPriority;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     // Custom query methods
@@ -14,11 +16,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByUser(User user);
 
-    List<Task> findByStatus(String status);
+    List<Task> findByStatus(TaskStatus status);
 
     List<Task> findByCategory(String category);
 
-    List<Task> findByPriority(int priority);
+    List<Task> findByPriority(TaskPriority priority);
 
     List<Task> findByDueDate(LocalDateTime dateTime);
 

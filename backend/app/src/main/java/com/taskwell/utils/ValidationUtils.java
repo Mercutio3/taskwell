@@ -21,6 +21,7 @@ public class ValidationUtils {
     }
 
     public static boolean isValidPassword(String password) {
+        // At least one uppercase, one lowercase, one digit, one special character
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$";
         if (password == null || !password.matches(passwordRegex)) {
             return false;
