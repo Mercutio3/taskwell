@@ -175,7 +175,7 @@ class UserServiceTest {
         user.setUsername("verifyme");
         user.setVerificationToken(token);
         user.setVerified(false);
-        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userRepository.findByVerificationToken(token)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         boolean result = userService.verifyUser(token);
@@ -189,7 +189,7 @@ class UserServiceTest {
     @Test
     void verifyUser_TokenNotFound_ReturnsFalse() {
         String token = "nonexistent-token";
-        when(userRepository.findAll()).thenReturn(List.of());
+        when(userRepository.findByVerificationToken(token)).thenReturn(Optional.empty());
 
         boolean result = userService.verifyUser(token);
 
