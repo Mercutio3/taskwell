@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.persistence.Entity;
@@ -23,17 +23,23 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Size(min = 1, max = 100)
+
+    @NotNull(message = "Title is required")
+    @Size(min = 1, max = 100, message = "Title must be between 1 and 100 characters")
     private String title;
 
+
+    @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
 
     @ManyToOne
     private User user; // The user to whom the task is assigned
 
+    @NotNull(message = "Status is required")
     private TaskStatus status; // Pending, In Progress, Completed..
     private boolean completed;
+
+    @FutureOrPresent
     private LocalDateTime dueDate;
 
     @CreationTimestamp
@@ -42,7 +48,10 @@ public class Task {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @NotNull(message = "Priority is required")
     private TaskPriority priority; // LOW, MEDIUM, HIGH
+
+    @Size(max = 100, message = "Category must be at most 100 characters")
     private String category; // e.g., Work, Personal, Shopping, etc.
 
     // No-args constructor required by JPA

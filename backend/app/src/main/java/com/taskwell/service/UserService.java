@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.taskwell.model.User;
+import com.taskwell.model.UserRole;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -30,7 +33,6 @@ public class UserService {
 
     // Register new user
     public User registerUser(User user) {
-
         // Hash password
         if (user.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -38,7 +40,7 @@ public class UserService {
 
         // Set default role if not provided
         if (user.getRole() == null) {
-            user.setRole("USER");
+            user.setRole(UserRole.USER);
         }
 
         // Check username and email validity
@@ -59,8 +61,37 @@ public class UserService {
             throw new IllegalArgumentException("Username or email already taken");
         }
 
-        logger.info("User registered: {}", user.getUsername());
+        // Generate verification token
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerified(false);
+
+        logger.info("User registered: {} (verification token generated)", user.getUsername());
         return userRepository.save(user);
+    }
+    /**
+     * Verifies a user by their verification token. If valid, sets verified=true and clears the token.
+     * @param token the verification token
+     * @return true if verification succeeded, false otherwise
+     */
+    @Transactional
+    public boolean verifyUser(String token) {
+        Optional<User> userOpt = userRepository.findAll().stream()
+                .filter(u -> token.equals(u.getVerificationToken()))
+                .findFirst();
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setVerified(true);
+            user.setVerificationToken(null);
+            userRepository.save(user);
+            logger.info("User {} verified successfully", user.getUsername());
+            return true;
+        }
+        logger.warn("Verification failed: token not found");
+        return false;
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     // Find user by ID, username, or email
@@ -106,7 +137,7 @@ public class UserService {
     }
 
     @Transactional
-    public User changeRole(Long id, String newRole) {
+    public User changeRole(Long id, UserRole newRole) {
         User user = findByID(id);
         user.setRole(newRole);
         logger.info("Set role {} for user: {}", newRole, user.getUsername());
@@ -136,14 +167,6 @@ public class UserService {
         User user = findByID(id); // will throw if not found
         user.setEnabled(!user.isEnabled());
         logger.info("User {} {}", user.isEnabled() ? "enabled:" : "disabled:", user.getUsername());
-        userRepository.save(user);
-    }
-
-    // Assign roles to users
-    public void assignRole(Long id, String role) {
-        User user = findByID(id); // will throw if not found
-        user.setRole(role);
-        logger.info("Assigned role {} to user: {}", role, user.getUsername());
         userRepository.save(user);
     }
 

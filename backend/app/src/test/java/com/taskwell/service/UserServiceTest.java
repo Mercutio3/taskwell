@@ -13,11 +13,13 @@ import com.taskwell.repository.UserRepository;
 import com.taskwell.utils.ValidationUtils;
 
 import com.taskwell.model.User;
+import com.taskwell.model.UserRole;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -163,6 +165,57 @@ class UserServiceTest {
             // Verifications
             verify(userRepository, never()).save(any(User.class));
         }
+    }
+
+    @Test
+    void verifyUser_Success() {
+        String token = "test-token";
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("verifyme");
+        user.setVerificationToken(token);
+        user.setVerified(false);
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        boolean result = userService.verifyUser(token);
+
+        assertTrue(result);
+        assertTrue(user.isVerified());
+        assertNull(user.getVerificationToken());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void verifyUser_TokenNotFound_ReturnsFalse() {
+        String token = "nonexistent-token";
+        when(userRepository.findAll()).thenReturn(List.of());
+
+        boolean result = userService.verifyUser(token);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void getAllUsers_Success() {
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("user1");
+        user1.setEmail("user1@example.com");
+
+        User user2 = new User();
+        user2.setId(2L);
+        user2.setUsername("user2");
+        user2.setEmail("user2@example.com");
+
+        when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+
+        List<User> users = userService.getAllUsers();
+
+        assertNotNull(users);
+        assertEquals(2, users.size());
+        assertEquals("user1", users.get(0).getUsername());
+        assertEquals("user2", users.get(1).getUsername());
     }
 
     @Test
@@ -408,15 +461,15 @@ class UserServiceTest {
     void changeRole_Success() {
         User user = new User();
         user.setId(1L);
-        user.setRole("USER");
+        user.setRole(UserRole.USER);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User updatedUser = userService.changeRole(user.getId(), "ADMIN");
+        User updatedUser = userService.changeRole(user.getId(), UserRole.ADMIN);
 
         assertNotNull(updatedUser);
-        assertEquals("ADMIN", updatedUser.getRole());
+        assertEquals(UserRole.ADMIN, updatedUser.getRole());
         verify(userRepository).save(user);
     }
 
@@ -426,7 +479,7 @@ class UserServiceTest {
 
         when(userRepository.findById(fakeId)).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userService.changeRole(fakeId, "ADMIN"));
+        assertThrows(UsernameNotFoundException.class, () -> userService.changeRole(fakeId, UserRole.ADMIN));
 
         verify(userRepository, never()).save(any(User.class));
     }

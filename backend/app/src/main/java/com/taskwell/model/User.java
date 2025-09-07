@@ -1,6 +1,8 @@
 package com.taskwell.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,11 +12,14 @@ import jakarta.persistence.UniqueConstraint;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,17 +34,21 @@ public class User {
     private Long id;
 
     @NotNull
-    @Size(min = 3, max = 50)
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Pattern(regexp = "^(?!.*([_.])\\1)[a-zA-Z0-9._]+$", message = "Username can only contain letters, numbers, dots, and underscores, and no consecutive dots or underscores")
     @Column(nullable = false, unique = true)
     private String username;
 
     @NotNull
-    @Size(min = 8, max = 100)
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     @JsonIgnore
     private String password;
 
     @NotNull
-    @Email
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -50,12 +59,16 @@ public class User {
     private LocalDateTime updatedAt;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private UserRole role;
 
     private boolean enabled;
     private boolean locked;
     private boolean verified;
+
+    @Column(name = "verification_token")
+    private String verificationToken;
 
     // No-args constructor required by JPA
     public User() {
@@ -68,6 +81,15 @@ public class User {
         this.enabled = true;
         this.locked = false;
         this.verified = false;
+        this.verificationToken = UUID.randomUUID().toString();
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
     }
 
     public void setId(Long id) {
@@ -102,11 +124,11 @@ public class User {
         return email;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 

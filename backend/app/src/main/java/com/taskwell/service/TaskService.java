@@ -37,6 +37,25 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    // Update an existing task
+    public Task updateTask(Long id, Task updatedTask) {
+        if (updatedTask == null) {
+            throw new IllegalArgumentException("Updated task must not be null");
+        }
+        if (!ValidationUtils.isValidTaskName(updatedTask.getTitle())) {
+            throw new IllegalArgumentException("Invalid task name");
+        }
+        Task existingTask = findTaskById(id).orElseThrow(() -> new IllegalArgumentException("Task not found"));
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setDueDate(updatedTask.getDueDate());
+        existingTask.setPriority(updatedTask.getPriority());
+        existingTask.setStatus(updatedTask.getStatus());
+        // Optionally: do not allow changing user/ID here
+        logger.info("Updated task: {}", id);
+        return taskRepository.save(existingTask);
+    }
+
     // Find task by ID
     public Optional<Task> findTaskById(Long id) {
         logger.info("Finding task by ID: {}", id);
