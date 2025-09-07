@@ -1,0 +1,21 @@
+name: Taskwell Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+            cd backend
+            ./gradlew clean build
+      - name: Run tests
+        run: |
+            cd backend
+            ./gradlew test

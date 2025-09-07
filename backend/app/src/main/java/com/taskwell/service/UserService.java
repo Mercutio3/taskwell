@@ -68,16 +68,17 @@ public class UserService {
         logger.info("User registered: {} (verification token generated)", user.getUsername());
         return userRepository.save(user);
     }
+
     /**
-     * Verifies a user by their verification token. If valid, sets verified=true and clears the token.
+     * Verifies a user by their verification token. If valid, sets verified=true and
+     * clears the token.
+     * 
      * @param token the verification token
      * @return true if verification succeeded, false otherwise
      */
     @Transactional
     public boolean verifyUser(String token) {
-        Optional<User> userOpt = userRepository.findAll().stream()
-                .filter(u -> token.equals(u.getVerificationToken()))
-                .findFirst();
+        Optional<User> userOpt = userRepository.findByVerificationToken(token);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             user.setVerified(true);
