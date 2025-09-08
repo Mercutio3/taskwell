@@ -21,6 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
 import java.util.List;
 
+import com.taskwell.security.CustomUserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
@@ -247,10 +251,19 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("oldusername");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
+        user.setLocked(false);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByUsername("newusername")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user);
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidUsername(anyString())).thenReturn(true);
@@ -263,6 +276,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository).save(user);
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
         }
     }
 
@@ -271,9 +286,18 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("oldusername");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
+        user.setLocked(false);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByUsername("newusername")).thenReturn(Optional.of(new User()));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidUsername(anyString())).thenReturn(true);
@@ -283,6 +307,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
         }
     }
 
@@ -291,8 +317,17 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("oldusername");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
+        user.setLocked(false);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidUsername(anyString())).thenReturn(false);
@@ -304,6 +339,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
         }
     }
 
@@ -312,8 +349,17 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("oldusername");
+        user.setVerified(true);
+        user.setLocked(false);
+        user.setRole(UserRole.USER);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidUsername(null)).thenReturn(false);
@@ -325,6 +371,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
         }
     }
 
@@ -333,8 +381,17 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("oldusername");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
+        user.setLocked(false);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidUsername("")).thenReturn(false);
@@ -346,6 +403,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
         }
     }
 
@@ -488,14 +547,26 @@ class UserServiceTest {
     void deleteUser_Success() {
         User user = new User();
         user.setId(1L);
+        user.setUsername("testuser");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         doNothing().when(userRepository).delete(user);
 
-        boolean result = userService.deleteUser(1L);
+        // Set up mock authentication context as the same user (self-delete)
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        assertTrue(result);
-        verify(userRepository).delete(user);
+        try {
+            boolean result = userService.deleteUser(1L);
+            assertTrue(result);
+            verify(userRepository).delete(user);
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 
     @Test
@@ -504,9 +575,23 @@ class UserServiceTest {
 
         when(userRepository.findById(fakeId)).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userService.deleteUser(fakeId));
+        // Set up mock authentication context as a verified user
+        User user = new User();
+        user.setId(fakeId);
+        user.setUsername("testuser");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        verify(userRepository, never()).delete(any(User.class));
+        try {
+            assertThrows(UsernameNotFoundException.class, () -> userService.deleteUser(fakeId));
+            verify(userRepository, never()).delete(any(User.class));
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 
     @Test
@@ -531,32 +616,6 @@ class UserServiceTest {
         when(userRepository.findById(fakeId)).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> userService.toggleUserLocked(fakeId));
-
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void toggleUserEnabled_Success() {
-        User user = new User();
-        user.setId(1L);
-        user.setEnabled(false);
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        userService.toggleUserEnabled(1L);
-
-        assertTrue(user.isEnabled());
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    void toggleUserEnabled_UserNotFound_ThrowsException() {
-        Long fakeId = 1L;
-
-        when(userRepository.findById(fakeId)).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () -> userService.toggleUserEnabled(fakeId));
 
         verify(userRepository, never()).save(any(User.class));
     }

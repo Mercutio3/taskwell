@@ -24,7 +24,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "username" }),
         @UniqueConstraint(columnNames = { "email" })
 })
@@ -58,12 +58,10 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
 
-    private boolean enabled;
     private boolean locked;
     private boolean verified;
 
@@ -78,7 +76,6 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.enabled = true;
         this.locked = false;
         this.verified = false;
         this.verificationToken = UUID.randomUUID().toString();
@@ -130,14 +127,6 @@ public class User {
 
     public UserRole getRole() {
         return role;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public boolean isLocked() {

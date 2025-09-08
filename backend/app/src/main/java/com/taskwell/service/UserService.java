@@ -1,6 +1,7 @@
 package com.taskwell.service;
 
 import com.taskwell.repository.UserRepository;
+import com.taskwell.utils.SecurityUtils;
 import com.taskwell.utils.ValidationUtils;
 
 import jakarta.transaction.Transactional;
@@ -8,12 +9,17 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.taskwell.model.User;
 import com.taskwell.model.UserRole;
+import com.taskwell.dto.UserRegistrationRequest;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
+
+import com.taskwell.security.CustomUserDetails;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +39,6 @@ public class UserService {
 
     // Register new user
     public User registerUser(User user) {
-        // Hash password
-        if (user.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
 
         // Set default role if not provided
         if (user.getRole() == null) {
@@ -56,6 +58,11 @@ public class UserService {
             throw new IllegalArgumentException("Password does not meet strength requirements");
         }
 
+        // Hash password
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
         // Check if username or email already exists
         if (isUsernameTaken(user.getUsername()) || isEmailTaken(user.getEmail())) {
             throw new IllegalArgumentException("Username or email already taken");
@@ -67,6 +74,16 @@ public class UserService {
 
         logger.info("User registered: {} (verification token generated)", user.getUsername());
         return userRepository.save(user);
+    }
+
+    public User registerUserFromDto(UserRegistrationRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setRole(UserRole.USER); // Set default role
+        user.setVerified(false);
+        return registerUser(user);
     }
 
     /**
@@ -106,12 +123,25 @@ public class UserService {
     }
 
     public User findByEmail(String email) {
+        if (!SecurityUtils.isVerifiedUser() && !SecurityUtils.isAdmin()) {
+            throw new AccessDeniedException("User must be verified");
+        }
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     // Update user details
     public User changeUsername(Long id, String newUsername) {
+        if (!SecurityUtils.isAdmin()) {
+            // Only allow if the authenticated user is verified and is changing their own
+            // username
+            CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            if (!principal.isVerified() || !principal.getId().equals(id)) {
+                throw new AccessDeniedException("Forbidden");
+            }
+        }
+
         User user = findByID(id);
         if (ValidationUtils.isValidUsername(newUsername)) {
             if (!isUsernameTaken(newUsername)) {
@@ -147,6 +177,13 @@ public class UserService {
 
     // Delete user account
     public boolean deleteUser(Long id) {
+        if (!SecurityUtils.isAdmin()) {
+            CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            if (!principal.isVerified() || !principal.getId().equals(id)) {
+                throw new AccessDeniedException("Forbidden");
+            }
+        }
         User user = findByID(id); // will throw if not found
         userRepository.delete(user);
         logger.info("User deleted: {}", user.getUsername());
@@ -159,15 +196,6 @@ public class UserService {
         User user = findByID(id); // will throw if not found
         user.setLocked(!user.isLocked());
         logger.info("User {} {}", user.isLocked() ? "locked:" : "unlocked:", user.getUsername());
-        userRepository.save(user);
-    }
-
-    @Transactional
-    // Enable/disable user account
-    public void toggleUserEnabled(Long id) {
-        User user = findByID(id); // will throw if not found
-        user.setEnabled(!user.isEnabled());
-        logger.info("User {} {}", user.isEnabled() ? "enabled:" : "disabled:", user.getUsername());
         userRepository.save(user);
     }
 

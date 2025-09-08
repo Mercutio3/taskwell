@@ -23,16 +23,15 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @NotNull(message = "Title is required")
     @Size(min = 1, max = 100, message = "Title must be between 1 and 100 characters")
     private String title;
-
 
     @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
 
     @ManyToOne
+    @jakarta.persistence.JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user; // The user to whom the task is assigned
 
     @NotNull(message = "Status is required")

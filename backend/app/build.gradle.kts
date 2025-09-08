@@ -45,6 +45,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.0")
     testImplementation("org.mockito:mockito-core:5.2.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")
+    testImplementation("org.springframework.security:spring-security-test:6.3.0")
 
     // Jakarta Persistence API
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")

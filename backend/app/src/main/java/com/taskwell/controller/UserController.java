@@ -1,6 +1,8 @@
 package com.taskwell.controller;
 
 import com.taskwell.dto.ChangePasswordRequest;
+import com.taskwell.dto.UserRegistrationResponse;
+import com.taskwell.dto.UserRegistrationRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -20,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import com.taskwell.service.UserService;
 import com.taskwell.model.User;
 import com.taskwell.dto.ChangeRoleRequest;
+
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,10 +37,27 @@ public class UserController {
     @Operation(summary = "Create a new user", description = "Creates a new user and returns it.")
     @ApiResponse(responseCode = "201", description = "User created successfully")
     @PostMapping("/api/users")
-    public ResponseEntity<User> createUser(
-            @Parameter(description = "User object to create") @Valid @RequestBody User user) {
-        User createdUser = userService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    public ResponseEntity<UserRegistrationResponse> createUser(
+            @Valid @RequestBody UserRegistrationRequest userRequest) {
+        User createdUser = userService.registerUserFromDto(userRequest);
+        UserRegistrationResponse response = new UserRegistrationResponse(
+                createdUser.getId(),
+                createdUser.getUsername(),
+                createdUser.getEmail(),
+                createdUser.isLocked(),
+                createdUser.isVerified(),
+                createdUser.getVerificationToken());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/api/users/verify")
+    public ResponseEntity<Void> verifyUser(@RequestParam("token") String token) {
+        boolean verified = userService.verifyUser(token);
+        if (verified) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @Operation(summary = "Get all users", description = "Returns a list of all users.")
@@ -136,20 +157,6 @@ public class UserController {
             @Parameter(description = "ID of the user to toggle lock status") @PathVariable Long id) {
         try {
             userService.toggleUserLocked(id);
-            return ResponseEntity.ok().build();
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @Operation(summary = "Toggle user account enabled status", description = "Toggles a user account enabled status by its ID.")
-    @ApiResponse(responseCode = "200", description = "User account enabled status toggled successfully")
-    @ApiResponse(responseCode = "404", description = "User not found")
-    @PutMapping("/api/users/{id}/toggle-enabled")
-    public ResponseEntity<Void> toggleUserEnabled(
-            @Parameter(description = "ID of the user to toggle enabled status") @PathVariable Long id) {
-        try {
-            userService.toggleUserEnabled(id);
             return ResponseEntity.ok().build();
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
