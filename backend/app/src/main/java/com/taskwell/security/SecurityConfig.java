@@ -28,6 +28,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/users/*/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/*/toggle-lock").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/*").authenticated()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Allow
+                                                                                                              // Swagger
                         .anyRequest().authenticated());
         return http.build();
     }
