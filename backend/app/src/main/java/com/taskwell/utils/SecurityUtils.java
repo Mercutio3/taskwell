@@ -30,4 +30,12 @@ public class SecurityUtils {
         }
         return false;
     }
+
+    public static CustomUserDetails getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
+            return (CustomUserDetails) auth.getPrincipal();
+        }
+        return null;
+    }
 }

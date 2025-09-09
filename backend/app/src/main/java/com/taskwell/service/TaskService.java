@@ -3,6 +3,8 @@ package com.taskwell.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import com.taskwell.repository.TaskRepository;
 import com.taskwell.repository.UserRepository;
@@ -15,6 +17,10 @@ import com.taskwell.model.TaskPriority;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
+
+import org.springframework.security.access.AccessDeniedException;
+import com.taskwell.security.CustomUserDetails;
+import com.taskwell.utils.SecurityUtils;
 
 @Service
 public class TaskService {
@@ -30,9 +36,24 @@ public class TaskService {
 
     // Create new task (and assign to user)
     public Task createTask(Task task) {
+        if (task == null) {
+            throw new NullPointerException("Task must not be null");
+        }
+
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null || !currentUser.isVerified()) {
+            throw new AccessDeniedException("User must be verified to create tasks");
+        }
+
         if (!ValidationUtils.isValidTaskName(task.getTitle())) {
             throw new IllegalArgumentException("Invalid task name");
         }
+
+        // Set the current user as the owner
+        User userEntity = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        task.setUser(userEntity);
+
         logger.info("Created task: {}", task.getTitle());
         return taskRepository.save(task);
     }
@@ -45,7 +66,13 @@ public class TaskService {
         if (!ValidationUtils.isValidTaskName(updatedTask.getTitle())) {
             throw new IllegalArgumentException("Invalid task name");
         }
-        Task existingTask = findTaskById(id).orElseThrow(() -> new IllegalArgumentException("Task not found"));
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        Task existingTask = findTaskById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+        if (!existingTask.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not own this task");
+        }
+
         existingTask.setTitle(updatedTask.getTitle());
         existingTask.setDescription(updatedTask.getDescription());
         existingTask.setDueDate(updatedTask.getDueDate());
@@ -119,6 +146,14 @@ public class TaskService {
 
     // Delete task
     public boolean deleteTask(Long id) {
+
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        Task existingTask = findTaskById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+        if (!existingTask.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not own this task");
+        }
+
         if (findTaskById(id).isPresent()) {
             logger.info("Deleted task: {}", id);
             taskRepository.deleteById(id);

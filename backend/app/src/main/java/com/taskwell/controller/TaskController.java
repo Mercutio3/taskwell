@@ -8,6 +8,7 @@ import com.taskwell.service.TaskService;
 import com.taskwell.service.UserService;
 import com.taskwell.model.TaskStatus;
 import com.taskwell.model.TaskPriority;
+import com.taskwell.utils.SecurityUtils;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,9 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import com.taskwell.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
@@ -58,10 +60,15 @@ public class TaskController {
     @ApiResponse(responseCode = "200", description = "Task found")
     @ApiResponse(responseCode = "404", description = "Task not found")
     @GetMapping("/api/tasks/{id}")
-    public ResponseEntity<Task> getTaskById(
-            @Parameter(description = "ID of the task to retrieve") @PathVariable Long id) {
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
         return taskService.findTaskById(id)
-                .map(ResponseEntity::ok)
+                .map(task -> {
+                    if (!task.getUser().getId().equals(currentUser.getId())) {
+                        throw new AccessDeniedException("You do not own this task");
+                    }
+                    return ResponseEntity.ok(task);
+                })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
@@ -36,9 +38,23 @@ class TaskServiceTest {
     void createTask_Success() {
         Task task = new Task();
         task.setTitle("Valid Task Name");
-        when(taskRepository.save(task)).thenReturn(task);
-        Task createdTask = taskService.createTask(task);
-        assertEquals("Valid Task Name", createdTask.getTitle());
+
+        // Mock SecurityUtils.getCurrentUser() to return a verified user
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.model.User user = new com.taskwell.model.User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            task.setUser(user);
+
+            when(taskRepository.save(task)).thenReturn(task);
+            Task createdTask = taskService.createTask(task);
+            assertEquals("Valid Task Name", createdTask.getTitle());
+        }
     }
 
     @Test
@@ -46,17 +62,26 @@ class TaskServiceTest {
         Task task = new Task();
         task.setTitle(""); // Invalid name
 
-        try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
-            mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(false);
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.model.User user = new com.taskwell.model.User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
 
-            // Assertions
-            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                taskService.createTask(task);
-            });
-            assertTrue(exception.getMessage().contains("Invalid task name"));
+            try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
+                mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(false);
 
-            // Verifications
-            verify(taskRepository, never()).save(task);
+                // Assertions
+                Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                    taskService.createTask(task);
+                });
+                assertTrue(exception.getMessage().contains("Invalid task name"));
+
+                // Verifications
+                verify(taskRepository, never()).save(task);
+            }
         }
     }
 
@@ -65,17 +90,26 @@ class TaskServiceTest {
         Task task = new Task();
         task.setTitle(null); // Invalid name
 
-        try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
-            mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(false);
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.model.User user = new com.taskwell.model.User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
 
-            // Assertions
-            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                taskService.createTask(task);
-            });
-            assertTrue(exception.getMessage().contains("Invalid task name"));
+            try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
+                mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(false);
 
-            // Verifications
-            verify(taskRepository, never()).save(task);
+                // Assertions
+                Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                    taskService.createTask(task);
+                });
+                assertTrue(exception.getMessage().contains("Invalid task name"));
+
+                // Verifications
+                verify(taskRepository, never()).save(task);
+            }
         }
     }
 
@@ -84,17 +118,26 @@ class TaskServiceTest {
         Task task = new Task();
         task.setTitle("A".repeat(101)); // Invalid name (too long)
 
-        try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
-            mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(false);
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.model.User user = new com.taskwell.model.User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
 
-            // Assertions
-            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                taskService.createTask(task);
-            });
-            assertTrue(exception.getMessage().contains("Invalid task name"));
+            try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
+                mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(false);
 
-            // Verifications
-            verify(taskRepository, never()).save(task);
+                // Assertions
+                Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                    taskService.createTask(task);
+                });
+                assertTrue(exception.getMessage().contains("Invalid task name"));
+
+                // Verifications
+                verify(taskRepository, never()).save(task);
+            }
         }
     }
 
@@ -102,6 +145,7 @@ class TaskServiceTest {
     void createTask_NullTaskObject_ThrowsException() {
         Task task = null; // Null task
 
+        // Optionally mock security context, but not strictly needed for null input
         Exception exception = assertThrows(NullPointerException.class, () -> {
             taskService.createTask(task);
         });
@@ -367,18 +411,38 @@ class TaskServiceTest {
     void deleteTask_Success() {
         Task task = new Task();
         task.setId(1L);
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        boolean result = taskService.deleteTask(1L);
-        assertTrue(result);
-        verify(taskRepository).deleteById(1L);
+        User user = new User();
+        user.setId(1L);
+        task.setUser(user);
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
+
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+            boolean result = taskService.deleteTask(1L);
+            assertTrue(result);
+            verify(taskRepository).deleteById(1L);
+        }
     }
 
     @Test
     void deleteTask_TaskNotFound_ReturnsFalse() {
-        when(taskRepository.findById(1L)).thenReturn(Optional.empty());
-        boolean result = taskService.deleteTask(1L);
-        assertFalse(result);
-        verify(taskRepository, never()).deleteById(1L);
+        // Optionally mock security context
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.model.User user = new com.taskwell.model.User();
+            user.setId(1L);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
+
+            when(taskRepository.findById(1L)).thenReturn(Optional.empty());
+            Exception exception = assertThrows(ResponseStatusException.class, () -> {
+                taskService.deleteTask(1L);
+            });
+            assertEquals(HttpStatus.NOT_FOUND, ((ResponseStatusException) exception).getStatusCode());
+            verify(taskRepository, never()).deleteById(anyLong());
+        }
     }
 
     @Test
