@@ -1,0 +1,12 @@
+.homepageInfo {
+    background-color: #D4F6FD;
+    border-radius: 5px;
+    padding: 10px;
+    border: 5px solid #A0D8EE;
+    text-align: center;
+    margin-top: 50px;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    display: block;
+    margin: 10px auto;
+}
