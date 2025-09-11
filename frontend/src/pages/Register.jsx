@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import StatusMessage from '../components/StatusMessage'
 import "./Register.css"
+import { registerUser } from '../services/api'
 
 function Register () {
     const [form, setForm] = useState({
@@ -12,6 +13,7 @@ function Register () {
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
 
     const handleChange = (e) => {
         setForm({
@@ -20,16 +22,25 @@ function Register () {
         })
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        // Handle registration logic here
-        console.log('Registering user:', form)
-    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        try {
+            const user = await registerUser(form);
+            setSuccess('Registration successful! Please log in.');
+            console.log('User registered successfully:', user);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div>
             <h1>Registration</h1>
-            <StatusMessage loading={loading} error={error} />
+            <StatusMessage loading={loading} error={error} success={success} />
             <form onSubmit={handleSubmit}>
                 <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required />
                 <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" required />

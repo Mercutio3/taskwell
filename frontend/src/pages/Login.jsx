@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import StatusMessage from '../components/StatusMessage'
+import { loginUser } from '../services/api'
 
 function Login () {
     const [form, setForm] = useState({
@@ -10,6 +11,7 @@ function Login () {
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({
@@ -19,17 +21,16 @@ function Login () {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setLoading(true)
-        setError('')
+        e.preventDefault();
+        setLoading(true);
+        setError('');
         try {
-            await new Promise((resolve, reject) => setTimeout(resolve, 1000))
-            console.log('Logging in user:', form)
-        } catch (error) {
-            console.error('Login failed:', error)
-            setError('Login failed. Please try again.')
+            await loginUser(form);
+            navigate('/dashboard');
+        } catch (err) {
+            setError('Login failed. Please check your credentials.');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 

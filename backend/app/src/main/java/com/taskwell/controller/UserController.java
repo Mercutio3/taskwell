@@ -16,12 +16,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import com.taskwell.utils.SecurityUtils;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import com.taskwell.service.UserService;
 import com.taskwell.model.User;
+import com.taskwell.security.CustomUserDetails;
 import com.taskwell.dto.ChangeRoleRequest;
 
 import jakarta.validation.Valid;
@@ -62,6 +65,19 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    @Operation(summary = "Get current authenticated user", description = "Returns the currently authenticated user.")
+    @ApiResponse(responseCode = "200", description = "Current user returned successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @GetMapping("/api/users/me")
+    public ResponseEntity<User> getCurrentUser() {
+        CustomUserDetails userDetails = SecurityUtils.getCurrentUser();
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userService.findByUsername(userDetails.getUsername());
+        return ResponseEntity.ok(user);
     }
 
     @Operation(summary = "Get all users", description = "Returns a list of all users.")
