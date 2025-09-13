@@ -40,3 +40,46 @@ export async function createTask(data) {
   if (!res.ok) throw new Error('Task creation failed');
   return res.json();
 }
+
+export async function getTask(id) {
+  const res = await fetch(`${BASE_URL}/tasks/${id}`, {
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to fetch task');
+  return res.json();
+}
+
+export async function updateTask(id, data) {
+  const res = await fetch(`${BASE_URL}/tasks/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Task update failed');
+  return res.json();
+}
+
+export async function deleteTask(id) {
+  const res = await fetch(`${BASE_URL}/tasks/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to delete task');
+}
+
+export async function completeTask(id) {
+  const res = await fetch(`${BASE_URL}/tasks/${id}/complete`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to complete task');
+}
+
+export async function uncompleteTask(id) {
+  const res = await fetch(`${BASE_URL}/tasks/${id}/uncomplete`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to uncomplete task');
+}

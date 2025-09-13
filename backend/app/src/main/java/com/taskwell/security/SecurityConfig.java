@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/login").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/users/me").authenticated()
+                        .requestMatchers("/api/tasks/**").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .successHandler(jsonAuthenticationSuccessHandler())

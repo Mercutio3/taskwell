@@ -108,6 +108,12 @@ public class UserService {
         return false;
     }
 
+    public void setVerified(Long userId, boolean verified) {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setVerified(verified);
+        userRepository.save(user);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

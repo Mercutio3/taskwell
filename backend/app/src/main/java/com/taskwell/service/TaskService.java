@@ -130,7 +130,7 @@ public class TaskService {
             return new IllegalArgumentException("Task not found");
         });
         logger.info("Marking task {} as completed", id);
-        task.setCompleted(true);
+        task.setStatus(TaskStatus.COMPLETE);
         return taskRepository.save(task);
     }
 
@@ -140,7 +140,7 @@ public class TaskService {
             return new IllegalArgumentException("Task not found");
         });
         logger.info("Marking task {} as uncompleted", id);
-        task.setCompleted(false);
+        task.setStatus(TaskStatus.PENDING);
         return taskRepository.save(task);
     }
 

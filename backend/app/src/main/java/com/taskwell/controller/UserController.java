@@ -29,7 +29,10 @@ import com.taskwell.dto.ChangeRoleRequest;
 
 import jakarta.validation.Valid;
 import java.util.List;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @Tag(name = "User API", description = "Operations related to users.")
@@ -78,6 +81,23 @@ public class UserController {
         }
         User user = userService.findByUsername(userDetails.getUsername());
         return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/api/users/me/verify")
+    public ResponseEntity<Void> verifyCurrentUser() {
+        CustomUserDetails userDetails = SecurityUtils.getCurrentUser();
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        userService.setVerified(userDetails.getId(), true);
+
+        User updatedUser = userService.findByID(userDetails.getId());
+        CustomUserDetails updatedDetails = new CustomUserDetails(updatedUser);
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                updatedDetails, null, updatedDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Get all users", description = "Returns a list of all users.")

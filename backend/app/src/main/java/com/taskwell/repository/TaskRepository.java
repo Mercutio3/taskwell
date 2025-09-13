@@ -24,10 +24,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByDueDate(LocalDateTime dateTime);
 
-    @Query("SELECT t FROM Task t WHERE t.dueDate < CURRENT_TIMESTAMP AND t.completed = false")
+    @Query("SELECT t FROM Task t WHERE t.dueDate < CURRENT_TIMESTAMP AND t.status <> com.taskwell.model.TaskStatus.COMPLETE")
     List<Task> findOverdueTasks();
 
-    @Query("SELECT t FROM Task t WHERE t.dueDate > CURRENT_TIMESTAMP AND t.completed = false")
+    @Query("SELECT t FROM Task t WHERE t.dueDate > CURRENT_TIMESTAMP AND t.status <> com.taskwell.model.TaskStatus.COMPLETE")
     List<Task> findUpcomingTasks();
 
 }

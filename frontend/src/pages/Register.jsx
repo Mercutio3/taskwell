@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import StatusMessage from '../components/StatusMessage'
 import "./Register.css"
 import { registerUser } from '../services/api'
+import { useNavigate } from 'react-router-dom'
 
 function Register () {
     const [form, setForm] = useState({
@@ -14,6 +15,7 @@ function Register () {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({
@@ -29,6 +31,7 @@ function Register () {
         try {
             const user = await registerUser(form);
             setSuccess('Registration successful! Please log in.');
+            setTimeout(() => navigate('/login'), 1000)
             console.log('User registered successfully:', user);
         } catch (err) {
             setError(err.message);

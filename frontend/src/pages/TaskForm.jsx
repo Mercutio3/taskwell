@@ -1,41 +1,46 @@
 import Navbar from '../components/Navbar'
 import StatusMessage from '../components/StatusMessage'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import "./TaskForm.css"
 
-function TaskForm() {
+function TaskForm( {initialTask, onSubmit, loading, error, success}) {
     const [form, setForm] = useState({
-            title: '',
-            description: '',
-            status: 'pending',
-            priority: 'MEDIUM',
-            dueDate: '',
-            category: ''
-        })
+        title: '',
+        description: '',
+        status: 'PENDING',
+        priority: 'MEDIUM',
+        dueDate: '',
+        category: ''
+    });
 
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
-    
-        const handleChange = (e) => {
+    useEffect(() => {
+        if(initialTask) {
             setForm({
-                ...form,
-                [e.target.name]: e.target.value
-            })
+                ...initialTask,
+                dueDate: initialTask.dueDate ? initialTask.dueDate.slice(0,10) : ''
+            });
         }
-    
-        const handleSubmit = (e) => {
-            e.preventDefault()
-            // Handle registration logic here
-            console.log('Registering user:', form)
-        }
+    }, [initialTask]);
+
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await onSubmit(form);
+    };
 
     return (
         <>
             <Navbar />
             <div className="taskform-container">
-                <h1>New Task</h1>
+                <h1>{initialTask ? 'Edit Task' : 'New Task'}</h1>
                 <p>Welcome to your task form! Here you can create a new task.</p>
-                <StatusMessage loading={loading} error={error} />
+                <StatusMessage loading={loading} error={error} success={success} />
                 <form className="taskform" onSubmit={handleSubmit}>
                     <input name="title" value={form.title} onChange={handleChange} placeholder="Task Title" required />
                     <input name="description" value={form.description} onChange={handleChange} placeholder="Task Description" />
@@ -51,7 +56,7 @@ function TaskForm() {
                         <option value="HIGH">High</option>
                     </select>
                     <input name="category" value={form.category} onChange={handleChange} placeholder="Category" />
-                    <button type="submit">Create Task</button>
+                    <button type="submit" disabled={loading}>{initialTask ? 'Update Task' : 'Create Task'}</button>
                 </form>
             </div>
         </>

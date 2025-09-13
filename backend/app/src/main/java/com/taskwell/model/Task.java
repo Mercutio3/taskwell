@@ -9,6 +9,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -36,15 +37,16 @@ public class Task {
 
     @NotNull(message = "Status is required")
     private TaskStatus status; // Pending, In Progress, Completed..
-    private boolean completed;
 
     @FutureOrPresent
     private LocalDateTime dueDate;
 
     @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @NotNull(message = "Priority is required")
@@ -102,20 +104,20 @@ public class Task {
         return status;
     }
 
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
 
     public LocalDateTime getDueDate() {
         return dueDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public void setPriority(TaskPriority priority) {

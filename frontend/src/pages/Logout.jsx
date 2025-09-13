@@ -5,10 +5,12 @@ function Logout() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Clear authentication tokens or user state here
-    // e.g., localStorage.removeItem('token')
-    // Redirect to login page after logout
-    navigate('/login', { replace: true })
+    fetch('http://localhost:8080/logout', {
+      method: 'POST',
+      credentials: 'include',
+    }).finally(() => {
+      navigate('/login', { replace: true })
+    })
   }, [navigate])
 
   return (

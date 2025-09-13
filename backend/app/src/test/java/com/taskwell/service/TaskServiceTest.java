@@ -322,7 +322,7 @@ class TaskServiceTest {
         Task task = new Task();
         task.setId(1L);
         task.setDueDate(LocalDateTime.now().minusDays(1));
-        task.setCompleted(false);
+        task.setStatus(TaskStatus.PENDING);
         when(taskRepository.findOverdueTasks()).thenReturn(List.of(task));
         List<Task> tasks = taskService.findOverdueTasks();
         assertEquals(1, tasks.size());
@@ -343,7 +343,7 @@ class TaskServiceTest {
         Task task = new Task();
         task.setId(1L);
         task.setDueDate(LocalDateTime.now().plusDays(1));
-        task.setCompleted(false);
+        task.setStatus(TaskStatus.PENDING);
         when(taskRepository.findUpcomingTasks()).thenReturn(List.of(task));
         List<Task> tasks = taskService.findUpcomingTasks();
         assertEquals(1, tasks.size());
@@ -363,12 +363,12 @@ class TaskServiceTest {
     void markTaskAsCompleted_Success() {
         Task task = new Task();
         task.setId(1L);
-        task.setCompleted(false);
+        task.setStatus(TaskStatus.PENDING);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
         Task updatedTask = taskService.markTaskAsCompleted(1L);
-        assertTrue(updatedTask.isCompleted());
+        assertEquals(TaskStatus.COMPLETE, updatedTask.getStatus());
         verify(taskRepository).save(task);
     }
 
@@ -387,12 +387,12 @@ class TaskServiceTest {
     void markTaskAsUncompleted_Success() {
         Task task = new Task();
         task.setId(1L);
-        task.setCompleted(true);
+        task.setStatus(TaskStatus.COMPLETE);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
         Task updatedTask = taskService.markTaskAsUncompleted(1L);
-        assertFalse(updatedTask.isCompleted());
+        assertEquals(TaskStatus.PENDING, updatedTask.getStatus());
         verify(taskRepository).save(task);
     }
 

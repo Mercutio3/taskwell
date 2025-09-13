@@ -1,21 +1,44 @@
 import Navbar from '../components/Navbar'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchCurrentUser } from '../services/user'
-
+import { verifyCurrentUser } from '../services/user'
 
 function Profile () {
     // For demo: replace with actual username from auth/session
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleVerify = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            await verifyCurrentUser();
+            // Refresh user data after verification
+            const updatedUser = await fetchCurrentUser();
+            setUser(updatedUser);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         setLoading(true);
         fetchCurrentUser()
             .then(setUser)
-            .catch(err => setError(err.message))
+            .catch(err => {
+                if (err.status === 401) {
+                    navigate('/unauthorized');
+                } else {
+                    setError(err.message);
+                }
+            })
             .finally(() => setLoading(false));
-    }, []);
+    }, [navigate]);
 
     return (
         <>
@@ -33,6 +56,7 @@ function Profile () {
                         <p><strong>Verified:</strong> {user.verified ? 'Yes' : 'No'}</p>
                     </div>
                 )}
+                <div><button onClick={handleVerify}>Verify Account</button></div>
                 <div className="profile-settings">[Settings Panel]</div>
             </div>
         </>
