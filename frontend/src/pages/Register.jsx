@@ -17,6 +17,8 @@ function Register () {
     const [success, setSuccess] = useState('')
     const navigate = useNavigate();
 
+    const [confirmPassword, setConfirmPassword] = useState('');
+
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -28,6 +30,12 @@ function Register () {
         e.preventDefault();
         setLoading(true);
         setError('');
+        // Confirm password validation
+        if (form.password !== confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
         try {
             const user = await registerUser(form);
             setSuccess('Registration successful! Please log in.');
@@ -48,6 +56,7 @@ function Register () {
                 <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required />
                 <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" required />
                 <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" required />
+                <input name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm Password" required />
                 <button type="submit">Register</button>
             </form>
             <p>Already have an account? <Link to="/login">Login</Link></p>

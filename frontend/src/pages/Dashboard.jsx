@@ -1,6 +1,10 @@
 import Navbar from '../components/Navbar'
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TaskSummaryWidget from '../components/widgets/TaskSummaryWidget';
+import UpcomingTasksWidget from '../components/widgets/UpcomingTasksWidget';
+import OverdueTasksWidget from '../components/widgets/OverdueTasksWidget';
+import ProductivityChartWidget from '../components/widgets/ProductivityChartWidget';
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -22,11 +26,11 @@ function Dashboard() {
             <div className="dashboard-container">
                 <h1>Dashboard</h1>
                 <p>Welcome to your dashboard! Here you can see an overview of your tasks and activity.</p>
-                {/* Placeholder for future dashboard widgets and stats */}
                 <div className="dashboard-widgets">
-                    <div className="widget-placeholder">[Task Summary Widget]</div>
-                    <div className="widget-placeholder">[Productivity Chart]</div>
-                    <div className="widget-placeholder">[Upcoming Deadlines]</div>
+                    <TaskSummaryWidget />
+                    <UpcomingTasksWidget />
+                    <OverdueTasksWidget />
+                    <ProductivityChartWidget />
                 </div>
             </div>
         </>

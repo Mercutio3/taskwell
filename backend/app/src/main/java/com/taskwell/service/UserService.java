@@ -55,7 +55,8 @@ public class UserService {
 
         // Check password strength
         if (!ValidationUtils.isValidPassword(user.getPassword())) {
-            throw new IllegalArgumentException("Password does not meet strength requirements");
+            throw new IllegalArgumentException(
+                    "Password must have at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character");
         }
 
         // Hash password
@@ -150,7 +151,7 @@ public class UserService {
 
         User user = findByID(id);
         if (ValidationUtils.isValidUsername(newUsername)) {
-            if (!isUsernameTaken(newUsername)) {
+            if (!isUsernameTaken(newUsername, id)) {
                 user.setUsername(newUsername);
                 logger.info("Username changed for user ID: {} to new username: {}", id, newUsername);
                 return userRepository.save(user);
@@ -210,8 +211,18 @@ public class UserService {
         return userRepository.findByUsername(username).isPresent();
     }
 
+    public boolean isUsernameTaken(String username, Long currentUserId) {
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.isPresent() && !user.get().getId().equals(currentUserId);
+    }
+
     public boolean isEmailTaken(String email) {
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    public boolean isEmailTaken(String email, Long currentUserId) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isPresent() && !user.get().getId().equals(currentUserId);
     }
 
     // List all users
@@ -225,7 +236,8 @@ public class UserService {
     public User changePassword(Long id, String newPassword) {
         User user = findByID(id); // will throw if not found
         if (!ValidationUtils.isValidPassword(newPassword)) {
-            throw new IllegalArgumentException("Password does not meet strength requirements");
+            throw new IllegalArgumentException(
+                    "Password must have at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         logger.info("Password changed for user: {}", user.getUsername());

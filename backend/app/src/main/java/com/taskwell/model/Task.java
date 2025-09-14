@@ -2,6 +2,7 @@ package com.taskwell.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -49,11 +50,13 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    private LocalDateTime completedAt;
+
     @NotNull(message = "Priority is required")
     private TaskPriority priority; // LOW, MEDIUM, HIGH
 
     @Size(max = 100, message = "Category must be at most 100 characters")
-    private String category; // e.g., Work, Personal, Shopping, etc.
+    private String category;
 
     // No-args constructor required by JPA
     public Task() {
@@ -118,6 +121,15 @@ public class Task {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
     }
 
     public void setPriority(TaskPriority priority) {

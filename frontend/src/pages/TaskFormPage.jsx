@@ -21,7 +21,11 @@ function TaskFormPage() {
                 navigate('/tasks');
             }, 1000);
         } catch (error) {
-            setError('Failed to create task');
+            if(error.status === 403) {
+                setError('Please verify your account to create tasks.');
+            } else {
+                setError('Failed to create task');
+            }
         } finally {
             setLoading(false);
         }

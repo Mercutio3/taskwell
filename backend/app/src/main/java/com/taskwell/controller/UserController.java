@@ -147,6 +147,10 @@ public class UserController {
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
             @Parameter(description = "User object containing new username") @Valid @RequestBody User user) {
         User updatedUser = userService.changeUsername(id, user.getUsername());
+        CustomUserDetails updateDetails = new CustomUserDetails(updatedUser);
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                updateDetails, null, updateDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
         if (updatedUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -162,6 +166,10 @@ public class UserController {
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
             @Parameter(description = "User object containing new email") @Valid @RequestBody User user) {
         User updatedUser = userService.changeEmail(id, user.getEmail());
+        CustomUserDetails updateDetails = new CustomUserDetails(updatedUser);
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                updateDetails, null, updateDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
         if (updatedUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

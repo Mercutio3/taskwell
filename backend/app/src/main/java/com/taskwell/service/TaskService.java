@@ -131,6 +131,7 @@ public class TaskService {
         });
         logger.info("Marking task {} as completed", id);
         task.setStatus(TaskStatus.COMPLETE);
+        task.setCompletedAt(LocalDateTime.now());
         return taskRepository.save(task);
     }
 
@@ -141,6 +142,7 @@ public class TaskService {
         });
         logger.info("Marking task {} as uncompleted", id);
         task.setStatus(TaskStatus.PENDING);
+        task.setCompletedAt(null);
         return taskRepository.save(task);
     }
 

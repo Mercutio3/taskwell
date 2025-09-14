@@ -30,14 +30,48 @@ export async function loginUser(data) {
   return res;
 }
 
+export async function updateUsername(userId, newUsername) {
+  const res = await fetch(`${BASE_URL}/users/${userId}/username`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: newUsername }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const error = new Error('Failed to update username');
+    error.status = res.status;
+    throw error;
+  }
+  return res.json();
+}
+
+export async function updateEmail(userId, newEmail) {
+  const res = await fetch(`${BASE_URL}/users/${userId}/email`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: newEmail }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const error = new Error('Failed to update email');
+    error.status = res.status;
+    throw error;
+  }
+  return res.json();
+}
+
 export async function createTask(data) {
   const res = await fetch(`${BASE_URL}/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
-    credentials: 'include', // if auth required
+    credentials: 'include',
   });
-  if (!res.ok) throw new Error('Task creation failed');
+  if (!res.ok) {
+    const error = new Error('Failed to create task');
+    error.status = res.status;
+    throw error;
+  }
   return res.json();
 }
 

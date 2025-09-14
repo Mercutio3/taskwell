@@ -74,7 +74,7 @@ function TaskList() {
                     {loading ? (
                         <div>Loading...</div>
                     ) : filteredTasks.length === 0 ? (
-                        <div>You have no tasks. <Link to="/tasks/new">Create task</Link></div>
+                        <div>You have no tasks, or none that match your given search criteria. <Link to="/tasks/new">Create task</Link></div>
                     ) : (
                         <ul>
                             {filteredTasks.map(task => (

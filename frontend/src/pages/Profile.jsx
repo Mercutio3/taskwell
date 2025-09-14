@@ -3,13 +3,64 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchCurrentUser } from '../services/user'
 import { verifyCurrentUser } from '../services/user'
+import { updateEmail, updateUsername } from '../services/api'
 
 function Profile () {
-    // For demo: replace with actual username from auth/session
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
+
+    const [showUsernameForm, setShowUsernameForm] = useState(false);
+    const [newUsername, setNewUsername] = useState('');
+    const handleUsernameChange = (e) => setNewUsername(e.target.value);
+    const handleUsernameSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess('');
+        try {
+            await updateUsername(user.id, newUsername);
+            setSuccess('Username updated successfully!');
+            const updatedUser = await fetchCurrentUser();
+            setUser(updatedUser);
+            setShowUsernameForm(false);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const [newEmail, setNewEmail] = useState('');
+    const handleEmailChange = (e) => setNewEmail(e.target.value);
+    const handleEmailSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setSuccess('');
+        try {
+            await updateEmail(user.id, newEmail);
+            setSuccess('Email updated successfully!');
+            const updatedUser = await fetchCurrentUser();
+            setUser(updatedUser);
+            setShowEmailForm(false);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const handlePasswordChange = (e) => setNewPassword(e.target.value);
+    const handlePasswordSubmit = (e) => {
+        e.preventDefault();
+        // Handle password update logic here
+    }
 
     const handleVerify = async () => {
         setLoading(true);
@@ -55,6 +106,33 @@ function Profile () {
                         <p><strong>Email:</strong> {user.email}</p>
                         <p><strong>Verified:</strong> {user.verified ? 'Yes' : 'No'}</p>
                     </div>
+                )}
+                <div><button onClick={() => setShowUsernameForm(v => !v)}>
+                    {showUsernameForm ? 'Cancel' : 'Edit Username'}
+                </button></div>
+                {showUsernameForm && (
+                    <form className="profile-edit-form" onSubmit={handleUsernameSubmit}>
+                        <input name="newusername" value={newUsername} onChange={handleUsernameChange} />
+                        <button type="submit">Save</button>
+                    </form>
+                )}
+                <div><button onClick={() => setShowEmailForm(v => !v)}>
+                    {showEmailForm ? 'Cancel' : 'Edit Email'}
+                </button></div>
+                {showEmailForm && (
+                    <form className="profile-edit-form" onSubmit={handleEmailSubmit}>
+                        <input name="newemail" value={newEmail} onChange={handleEmailChange} />
+                        <button type="submit">Save</button>
+                    </form>
+                )}
+                <div><button onClick={() => setShowPasswordForm(v => !v)}>
+                    {showPasswordForm ? 'Cancel' : 'Edit Password'}
+                </button></div>
+                {showPasswordForm && (
+                    <form className="profile-edit-form" onSubmit={handlePasswordSubmit}>
+                        <input name="newpassword" type="password" value={newPassword} onChange={handlePasswordChange} />
+                        <button type="submit">Save</button>
+                    </form>
                 )}
                 <div><button onClick={handleVerify}>Verify Account</button></div>
                 <div className="profile-settings">[Settings Panel]</div>
