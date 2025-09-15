@@ -6,9 +6,10 @@ function TaskList() {
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
-    // Placeholder for filters
     const [statusFilter, setStatusFilter] = useState('')
     const [priorityFilter, setPriorityFilter] = useState('')
+    const [sortField, setSortField] = useState('title')
+    const [sortDirection, setSortDirection] = useState('asc')
 
     useEffect(() => {
         async function fetchTasks() {
@@ -42,6 +43,18 @@ function TaskList() {
         return matchesSearch && matchesStatus && matchesPriority
     })
 
+    const sortedTasks = [...filteredTasks].sort((a, b) => {
+        let aVal = a[sortField] || '';
+        let bVal = b[sortField] || '';
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
     return (
         <>
             <Navbar />
@@ -56,7 +69,6 @@ function TaskList() {
                     onChange={e => setSearch(e.target.value)}
                     className="tasklist-search"
                 />
-                {/* Filters (simple dropdowns for now) */}
                 <div className="tasklist-filters">
                     <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
                         <option value="">All Statuses</option>
@@ -70,6 +82,21 @@ function TaskList() {
                         <option value="HIGH">High</option>
                     </select>
                 </div>
+                <div className="tasklist-sort">
+                    <label>Sort By:&nbsp;
+                    <select value={sortField} onChange={e => setSortField(e.target.value)}>
+                        <option value="title">Title</option>
+                        <option value="status">Status</option>
+                        <option value="priority">Priority</option>
+                    </select>
+                    </label>
+                    <label>Order:&nbsp;
+                    <select value={sortDirection} onChange={e => setSortDirection(e.target.value)}>
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                    </label>
+                </div>
                 <div className="tasklist-items">
                     {loading ? (
                         <div>Loading...</div>
@@ -77,7 +104,7 @@ function TaskList() {
                         <div>You have no tasks, or none that match your given search criteria. <Link to="/tasks/new">Create task</Link></div>
                     ) : (
                         <ul>
-                            {filteredTasks.map(task => (
+                            {sortedTasks.map(task => (
                                 <li key={task.id}>
                                     <Link to={`/tasks/${task.id}`}>{task.title}</Link>
                                     {task.status && <span> [{task.status}]</span>}

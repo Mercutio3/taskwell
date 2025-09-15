@@ -5,6 +5,7 @@ import TaskSummaryWidget from '../components/widgets/TaskSummaryWidget';
 import UpcomingTasksWidget from '../components/widgets/UpcomingTasksWidget';
 import OverdueTasksWidget from '../components/widgets/OverdueTasksWidget';
 import ProductivityChartWidget from '../components/widgets/ProductivityChartWidget';
+import CategoryPieChart from '../components/widgets/CategoryPieChartWidget';
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -31,6 +32,7 @@ function Dashboard() {
                     <UpcomingTasksWidget />
                     <OverdueTasksWidget />
                     <ProductivityChartWidget />
+                    <CategoryPieChart />
                 </div>
             </div>
         </>
