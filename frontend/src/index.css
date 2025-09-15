@@ -11,23 +11,42 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --pastel-blue: #BEE3F8;
+  --pastel-pink: #FFD6E0;
+  --pastel-yellow: #FFF9C4;
+  --pastel-mint: #C8F7DC;
+  --pastel-lavender: #E6D7FF;
+  --pastel-white: #FFFFFF;
+  --pastel-border: #A0D8EE;
+  --pastel-shadow: 0 2px 8px rgba(190, 227, 248, 0.5);
+  --main-radius: 16px;
+  --main-padding: 1.5rem;
+  --main-font: 'Avenir';
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  color: #7B8FFF;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 a:hover {
-  color: #535bf2;
+  color: #FFB6C1;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--pastel-blue);
+  color: #444;
+  font-family: var(--main-font);
+}
+
+body, #root {
+  margin-top: 0;
+  padding-top: 0;
 }
 
 h1 {
@@ -35,23 +54,45 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+h1, h2, h3 {
+  
+  font-family: var(--main-font);
+  margin-bottom: 0.5em;
+  color: #7B8FFF;
+  font-weight: 700;
+}
+
+button, .btn {
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border: 1.5px solid var(--pastel-border);
+  padding: 0.7em 1.5em;
+  font-size: 1.1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background: var(--pastel-pink);
+  color: #444;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 1px 4px rgba(255, 214, 224, 0.12);
 }
-button:hover {
-  border-color: #646cff;
+button:hover, .btn:hover {
+  border-color: var(--pastel-mint);
+  background: var(--pastel-yellow);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+input, select, textarea {
+  border-radius: 8px;
+  border: 1.5px solid var(--pastel-border);
+  padding: 0.7em;
+  background: var(--pastel-mint);
+  font-size: 1em;
+  margin-bottom: 1em;
+  font-family: inherit;
+  color: #444;
 }
 
 @media (prefers-color-scheme: light) {
@@ -65,4 +106,31 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--pastel-blue);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pastel-lavender);
+  border-radius: 8px;
+}
+
+.card, .widget, .tasklist, .homepageInfo {
+  background: var(--pastel-white);
+  border-radius: var(--main-radius);
+  border: 2px solid var(--pastel-border);
+  padding: var(--main-padding);
+  box-shadow: var(--pastel-shadow);
+  margin-bottom: 1.5rem auto;
+  max-width: 600px;
+}
+
+.dashboard-container, .tasklist-container {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

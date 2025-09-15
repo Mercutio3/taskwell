@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import StatusMessage from '../components/StatusMessage'
-import "./Register.css"
+//import "./Register.css"
 import { registerUser } from '../services/api'
 import { useNavigate } from 'react-router-dom'
 
