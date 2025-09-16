@@ -361,49 +361,71 @@ class TaskServiceTest {
 
     @Test
     void markTaskAsCompleted_Success() {
-        Task task = new Task();
-        task.setId(1L);
-        task.setStatus(TaskStatus.PENDING);
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            User user = new User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
 
-        Task updatedTask = taskService.markTaskAsCompleted(1L);
-        assertEquals(TaskStatus.COMPLETE, updatedTask.getStatus());
-        verify(taskRepository).save(task);
+            Task task = new Task();
+            task.setId(1L);
+            task.setStatus(TaskStatus.PENDING);
+            task.setUser(user);
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+            when(taskRepository.save(any(Task.class))).thenReturn(task);
+
+            Task updatedTask = taskService.markTaskAsCompleted(1L);
+            assertEquals(TaskStatus.COMPLETE, updatedTask.getStatus());
+            verify(taskRepository).save(task);
+        }
     }
 
     @Test
     void markTaskAsCompleted_TaskNotFound_ThrowsException() {
         when(taskRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(org.springframework.web.server.ResponseStatusException.class, () -> {
             taskService.markTaskAsCompleted(1L);
         });
-        assertTrue(exception.getMessage().contains("Task not found"));
+        assertEquals(HttpStatus.NOT_FOUND,
+                ((org.springframework.web.server.ResponseStatusException) exception).getStatusCode());
         verify(taskRepository, never()).save(any(Task.class));
     }
 
     @Test
     void markTaskAsUncompleted_Success() {
-        Task task = new Task();
-        task.setId(1L);
-        task.setStatus(TaskStatus.COMPLETE);
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            User user = new User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
 
-        Task updatedTask = taskService.markTaskAsUncompleted(1L);
-        assertEquals(TaskStatus.PENDING, updatedTask.getStatus());
-        verify(taskRepository).save(task);
+            Task task = new Task();
+            task.setId(1L);
+            task.setStatus(TaskStatus.COMPLETE);
+            task.setUser(user);
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+            when(taskRepository.save(any(Task.class))).thenReturn(task);
+
+            Task updatedTask = taskService.markTaskAsUncompleted(1L);
+            assertEquals(TaskStatus.PENDING, updatedTask.getStatus());
+            verify(taskRepository).save(task);
+        }
     }
 
     @Test
     void markTaskAsUncompleted_TaskNotFound_ThrowsException() {
         when(taskRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(org.springframework.web.server.ResponseStatusException.class, () -> {
             taskService.markTaskAsUncompleted(1L);
         });
-        assertTrue(exception.getMessage().contains("Task not found"));
+        assertEquals(HttpStatus.NOT_FOUND,
+                ((org.springframework.web.server.ResponseStatusException) exception).getStatusCode());
         verify(taskRepository, never()).save(any(Task.class));
     }
 
@@ -482,7 +504,7 @@ class TaskServiceTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             taskService.assignTaskToUser(1L, user);
         });
-        assertTrue(exception.getMessage().contains("Invalid user"));
+        assertTrue(exception.getMessage().contains("User not found"));
         verify(taskRepository, never()).save(any(Task.class));
     }
 

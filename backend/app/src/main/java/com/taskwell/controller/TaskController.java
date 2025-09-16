@@ -29,6 +29,8 @@ import com.taskwell.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @Tag(name = "Task API", description = "Operations related to tasks.")
@@ -39,6 +41,8 @@ public class TaskController {
     @Autowired
     private UserService userService;
 
+    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
+
     // Create a new task
     @Operation(summary = "Create a new task", description = "Creates a new task and returns it.")
     @ApiResponse(responseCode = "201", description = "Task created successfully.")
@@ -47,6 +51,7 @@ public class TaskController {
     @PostMapping("/api/tasks")
     public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
         Task createdTask = taskService.createTask(task);
+        logger.info("Task created: id={}, userId={}", createdTask.getId(), createdTask.getUser().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
     }
 
@@ -56,6 +61,7 @@ public class TaskController {
     @GetMapping("/api/tasks")
     public ResponseEntity<List<Task>> getAllTasks() {
         List<Task> tasks = taskService.findAllTasks();
+        logger.info("Fetched all tasks, count={}", tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -71,11 +77,16 @@ public class TaskController {
         return taskService.findTaskById(id)
                 .map(task -> {
                     if (!task.getUser().getId().equals(currentUser.getId())) {
+                        logger.warn("Access denied: userId={} tried to access taskId={}", currentUser.getId(), id);
                         throw new AccessDeniedException("You do not own this task");
                     }
+                    logger.info("Task fetched: id={}, userId={}", id, currentUser.getId());
                     return ResponseEntity.ok(task);
                 })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    logger.warn("Task not found: id={}", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
     @Operation(summary = "Update a task", description = "Updates an existing task by its ID.")
@@ -87,6 +98,7 @@ public class TaskController {
     public ResponseEntity<Task> updateTask(@Parameter(description = "ID of the task to update.") @PathVariable Long id,
             @Valid @RequestBody Task task) {
         Task updatedTask = taskService.updateTask(id, task);
+        logger.info("Task updated: id={}, userId={}", id, updatedTask.getUser().getId());
         return ResponseEntity.ok(updatedTask);
     }
 
@@ -98,6 +110,7 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(
             @Parameter(description = "ID of the task to delete.") @PathVariable Long id) {
         taskService.deleteTask(id);
+        logger.info("Task deleted: id={}", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -109,9 +122,11 @@ public class TaskController {
             @Parameter(description = "ID of the user to retrieve tasks for.") @PathVariable Long userId) {
         User user = userService.findByID(userId);
         if (user == null) {
+            logger.warn("User not found when fetching tasks: userId={}", userId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         List<Task> tasks = taskService.findTasksByUser(user);
+        logger.info("Fetched tasks for userId={}, count={}", userId, tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -122,6 +137,7 @@ public class TaskController {
     public ResponseEntity<List<Task>> getTasksByStatus(
             @Parameter(description = "Status of the tasks to retrieve (PENDING, IN_PROGRESS, COMPLETE, CANCELLED, ON_HOLD, OVERDUE, ARCHIVED).") @PathVariable String status) {
         List<Task> tasks = taskService.findTasksByStatus(TaskStatus.valueOf(status.toUpperCase()));
+        logger.info("Fetched tasks by status={}, count={}", status, tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -132,6 +148,7 @@ public class TaskController {
     public ResponseEntity<List<Task>> getTasksByPriority(
             @Parameter(description = "Priority of the tasks to retrieve (LOW, MEDIUM, or HIGH).") @PathVariable String priority) {
         List<Task> tasks = taskService.findTasksByPriority(TaskPriority.valueOf(priority.toUpperCase()));
+        logger.info("Fetched tasks by priority={}, count={}", priority, tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -142,6 +159,7 @@ public class TaskController {
     public ResponseEntity<List<Task>> getTasksByCategory(
             @Parameter(description = "Category of the tasks to retrieve.") @PathVariable String category) {
         List<Task> tasks = taskService.findTasksByCategory(category);
+        logger.info("Fetched tasks by category={}, count={}", category, tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -155,8 +173,10 @@ public class TaskController {
         try {
             parsedDate = LocalDateTime.parse(dueDate);
             List<Task> tasks = taskService.findTasksByDueDate(parsedDate);
+            logger.info("Fetched tasks by dueDate={}, count={}", dueDate, tasks.size());
             return ResponseEntity.ok(tasks);
         } catch (Exception e) {
+            logger.warn("Bad request: invalid dueDate format '{}', error={}", dueDate, e.getMessage());
             return ResponseEntity.badRequest().build();
         }
 
@@ -167,6 +187,7 @@ public class TaskController {
     @GetMapping("/api/tasks/overdue")
     public ResponseEntity<List<Task>> getOverdueTasks() {
         List<Task> tasks = taskService.findOverdueTasks();
+        logger.info("Fetched overdue tasks, count={}", tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -175,6 +196,7 @@ public class TaskController {
     @GetMapping("/api/tasks/upcoming")
     public ResponseEntity<List<Task>> getUpcomingTasks() {
         List<Task> tasks = taskService.findUpcomingTasks();
+        logger.info("Fetched upcoming tasks, count={}", tasks.size());
         return ResponseEntity.ok(tasks);
     }
 
@@ -184,6 +206,7 @@ public class TaskController {
     public ResponseEntity<Task> completeTask(
             @Parameter(description = "ID of the task to complete.") @PathVariable Long id) {
         Task completedTask = taskService.markTaskAsCompleted(id);
+        logger.info("Task marked as completed: id={}", id);
         return ResponseEntity.ok(completedTask);
     }
 
@@ -193,6 +216,7 @@ public class TaskController {
     public ResponseEntity<Task> uncompleteTask(
             @Parameter(description = "ID of the task to uncomplete.") @PathVariable Long id) {
         Task uncompletedTask = taskService.markTaskAsUncompleted(id);
+        logger.info("Task marked as uncompleted: id={}", id);
         return ResponseEntity.ok(uncompletedTask);
     }
 
@@ -205,9 +229,11 @@ public class TaskController {
             @Parameter(description = "ID of the user to assign the task to.") @PathVariable Long userId) {
         User user = userService.findByID(userId);
         if (user == null) {
+            logger.warn("User not found when assigning task: userId={}, taskId={}", userId, taskId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         Task assignedTask = taskService.assignTaskToUser(taskId, user);
+        logger.info("Task assigned: taskId={}, userId={}", taskId, userId);
         return ResponseEntity.ok(assignedTask);
     }
 }

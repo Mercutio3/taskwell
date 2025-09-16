@@ -417,10 +417,18 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("oldemail@example.com");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user);
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidEmail(anyString())).thenReturn(true);
@@ -433,6 +441,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository).save(user);
+        } finally {
+            SecurityContextHolder.clearContext();
         }
     }
 
@@ -441,9 +451,17 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("oldemail@example.com");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.of(new User()));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidEmail(anyString())).thenReturn(true);
@@ -454,6 +472,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            SecurityContextHolder.clearContext();
         }
     }
 
@@ -462,8 +482,16 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("oldemail@example.com");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidEmail(anyString())).thenReturn(false);
@@ -475,6 +503,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            SecurityContextHolder.clearContext();
         }
     }
 
@@ -483,8 +513,16 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("oldemail@example.com");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidEmail(null)).thenReturn(false);
@@ -496,6 +534,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            SecurityContextHolder.clearContext();
         }
     }
 
@@ -504,8 +544,16 @@ class UserServiceTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("oldemail@example.com");
+        user.setRole(UserRole.USER);
+        user.setVerified(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Set up mock authentication context with CustomUserDetails
+        CustomUserDetails principal = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                principal, null, principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidEmail("")).thenReturn(false);
@@ -517,6 +565,8 @@ class UserServiceTest {
 
             // Verifications
             verify(userRepository, never()).save(user);
+        } finally {
+            SecurityContextHolder.clearContext();
         }
     }
 

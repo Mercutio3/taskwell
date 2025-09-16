@@ -1,6 +1,5 @@
 package com.taskwell.controller;
 
-import com.taskwell.dto.ChangePasswordRequest;
 import com.taskwell.dto.UserRegistrationResponse;
 import com.taskwell.dto.UserRegistrationRequest;
 
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.taskwell.utils.SecurityUtils;
 
@@ -40,6 +41,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Operation(summary = "Create a new user", description = "Creates a new user and returns it.")
     @ApiResponse(responseCode = "201", description = "User created successfully.")
     @ApiResponse(responseCode = "400", description = "Invalid or taken input data.")
@@ -54,6 +57,7 @@ public class UserController {
                 createdUser.isLocked(),
                 createdUser.isVerified(),
                 createdUser.getVerificationToken());
+        logger.info("User registered: {}", createdUser.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -64,8 +68,10 @@ public class UserController {
     public ResponseEntity<Void> verifyUser(@RequestParam("token") String token) {
         boolean verified = userService.verifyUser(token);
         if (verified) {
+            logger.info("User verified successfully with token: {}", token);
             return ResponseEntity.ok().build();
         } else {
+            logger.warn("User verification failed with token: {}", token);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
@@ -77,16 +83,22 @@ public class UserController {
     public ResponseEntity<User> getCurrentUser() {
         CustomUserDetails userDetails = SecurityUtils.getCurrentUser();
         if (userDetails == null) {
+            logger.warn("Unauthorized access attempt to /api/users/me");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         User user = userService.findByUsername(userDetails.getUsername());
+        logger.info("Current user retrieved: {}", user.getUsername());
         return ResponseEntity.ok(user);
     }
 
+    @Operation(summary = "Verify current user", description = "Sets the current user's verified status to true. Used as a placeholder for email token verification during frontend development")
+    @ApiResponse(responseCode = "200", description = "User verified successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     @PutMapping("/api/users/me/verify")
     public ResponseEntity<Void> verifyCurrentUser() {
         CustomUserDetails userDetails = SecurityUtils.getCurrentUser();
         if (userDetails == null) {
+            logger.warn("Unauthorized access attempt to verify current user");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         userService.setVerified(userDetails.getId(), true);
@@ -96,7 +108,7 @@ public class UserController {
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
                 updatedDetails, null, updatedDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
-
+        logger.info("User ID {} verified successfully", userDetails.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -105,6 +117,7 @@ public class UserController {
     @GetMapping("/api/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
+        logger.info("Retrieved all users, count: {}", users.size());
         return ResponseEntity.ok(users);
     }
 
@@ -115,6 +128,11 @@ public class UserController {
     public ResponseEntity<User> getUserById(
             @Parameter(description = "ID of the user to retrieve") @PathVariable Long id) {
         User user = userService.findByID(id);
+        if (user == null) {
+            logger.warn("User not found for ID {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        logger.info("User retrieved by ID {}: {}", id, user.getUsername());
         return ResponseEntity.ok(user);
     }
 
@@ -125,6 +143,11 @@ public class UserController {
     public ResponseEntity<User> getUserByUsername(
             @Parameter(description = "Username of the user to retrieve") @PathVariable String username) {
         User user = userService.findByUsername(username);
+        if (user == null) {
+            logger.warn("User not found for username: {}", username);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        logger.info("User retrieved by username: {}", username);
         return ResponseEntity.ok(user);
     }
 
@@ -135,6 +158,11 @@ public class UserController {
     public ResponseEntity<User> getUserByEmail(
             @Parameter(description = "Email of the user to retrieve") @PathVariable String email) {
         User user = userService.findByEmail(email);
+        if (user == null) {
+            logger.warn("User not found for email: {}", email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        logger.info("User retrieved by email: {}", email);
         return ResponseEntity.ok(user);
     }
 
@@ -145,15 +173,17 @@ public class UserController {
     @PutMapping("/api/users/{id}/username")
     public ResponseEntity<User> updateUser(
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
-            @Parameter(description = "User object containing new username") @Valid @RequestBody User user) {
-        User updatedUser = userService.changeUsername(id, user.getUsername());
+            @Parameter(description = "ChangeUsernameRequest DTO containing new username") @Valid @RequestBody com.taskwell.dto.ChangeUsernameRequest request) {
+        User updatedUser = userService.changeUsername(id, request.getUsername());
+        if (updatedUser == null) {
+            logger.warn("User update failed for user ID {}: user not found", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         CustomUserDetails updateDetails = new CustomUserDetails(updatedUser);
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
                 updateDetails, null, updateDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
-        if (updatedUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        logger.info("User ID {} updated username to {}", id, updatedUser.getUsername());
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -164,15 +194,17 @@ public class UserController {
     @PutMapping("/api/users/{id}/email")
     public ResponseEntity<User> updateEmail(
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
-            @Parameter(description = "User object containing new email") @Valid @RequestBody User user) {
-        User updatedUser = userService.changeEmail(id, user.getEmail());
+            @Parameter(description = "ChangeEmailRequest DTO containing new email") @Valid @RequestBody com.taskwell.dto.ChangeEmailRequest request) {
+        User updatedUser = userService.changeEmail(id, request.getEmail());
+        if (updatedUser == null) {
+            logger.warn("Email update failed for user ID {}: user not found", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         CustomUserDetails updateDetails = new CustomUserDetails(updatedUser);
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
                 updateDetails, null, updateDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
-        if (updatedUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        logger.info("User ID {} updated email to {}", id, updatedUser.getEmail());
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -185,6 +217,11 @@ public class UserController {
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
             @Parameter(description = "Role change request") @Valid @RequestBody ChangeRoleRequest request) {
         User updatedUser = userService.changeRole(id, request.getRole());
+        if (updatedUser == null) {
+            logger.warn("Role change failed for user ID {}: user not found", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        logger.info("User ID {} role changed to {}", id, request.getRole());
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -195,8 +232,10 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "ID of the user to delete") @PathVariable Long id) {
         if (userService.deleteUser(id)) {
+            logger.info("User ID {} deleted successfully", id);
             return ResponseEntity.noContent().build();
         }
+        logger.warn("User deletion failed for user ID {}: user not found", id);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
@@ -208,8 +247,10 @@ public class UserController {
             @Parameter(description = "ID of the user to toggle lock status") @PathVariable Long id) {
         try {
             userService.toggleUserLocked(id);
+            logger.info("User ID {} lock status toggled successfully", id);
             return ResponseEntity.ok().build();
         } catch (UsernameNotFoundException e) {
+            logger.warn("Toggle lock failed for user ID {}: user not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -221,11 +262,13 @@ public class UserController {
     @PutMapping("/api/users/{id}/password")
     public ResponseEntity<User> changeUserPassword(
             @Parameter(description = "ID of the user to change password") @PathVariable Long id,
-            @Parameter(description = "New password") @Valid @RequestBody ChangePasswordRequest request) {
+            @Parameter(description = "ChangePasswordRequest DTO containing new password") @Valid @RequestBody com.taskwell.dto.ChangePasswordRequest request) {
         User updatedUser = userService.changePassword(id, request.getPassword());
         if (updatedUser == null) {
+            logger.warn("Password change failed for user ID {}: user not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        logger.info("User ID {} changed password successfully", id);
         return ResponseEntity.ok(updatedUser);
     }
 }

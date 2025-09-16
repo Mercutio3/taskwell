@@ -109,6 +109,7 @@ public class UserService {
         return false;
     }
 
+    @Transactional
     public void setVerified(Long userId, boolean verified) {
         User user = userRepository.findById(userId).orElseThrow();
         user.setVerified(verified);
@@ -138,6 +139,7 @@ public class UserService {
     }
 
     // Update user details
+    @Transactional
     public User changeUsername(Long id, String newUsername) {
         if (!SecurityUtils.isAdmin()) {
             // Only allow if the authenticated user is verified and is changing their own
@@ -156,12 +158,25 @@ public class UserService {
                 logger.info("Username changed for user ID: {} to new username: {}", id, newUsername);
                 return userRepository.save(user);
             }
+            logger.warn("Username change failed for user ID {}: username already taken", id);
             throw new IllegalArgumentException("Username taken");
         }
+        logger.warn("Username change failed for user ID {}: invalid username", id);
         throw new IllegalArgumentException("Invalid username");
     }
 
+    @Transactional
     public User changeEmail(Long id, String newEmail) {
+        if (!SecurityUtils.isAdmin()) {
+            // Only allow if the authenticated user is verified and is changing their own
+            // email
+            CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            if (!principal.isVerified() || !principal.getId().equals(id)) {
+                throw new AccessDeniedException("Forbidden");
+            }
+        }
+
         User user = findByID(id);
         if (ValidationUtils.isValidEmail(newEmail)) {
             if (!isEmailTaken(newEmail)) {
@@ -169,8 +184,10 @@ public class UserService {
                 logger.info("Email changed for user: {} to new email: {}", user.getUsername(), newEmail);
                 return userRepository.save(user);
             }
+            logger.warn("Email change failed for user ID {}: email already taken", id);
             throw new IllegalArgumentException("Email taken");
         }
+        logger.warn("Email change failed for user ID {}: invalid email format", id);
         throw new IllegalArgumentException("Invalid email format");
     }
 
@@ -183,15 +200,17 @@ public class UserService {
     }
 
     // Delete user account
+    @Transactional
     public boolean deleteUser(Long id) {
         if (!SecurityUtils.isAdmin()) {
             CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             if (!principal.isVerified() || !principal.getId().equals(id)) {
+                logger.warn("User ID {} attempted to delete user ID {} without permission", principal.getId(), id);
                 throw new AccessDeniedException("Forbidden");
             }
         }
-        User user = findByID(id); // will throw if not found
+        User user = findByID(id); // Throws if not found
         userRepository.delete(user);
         logger.info("User deleted: {}", user.getUsername());
         return true;
@@ -200,7 +219,7 @@ public class UserService {
     @Transactional
     // Lock/unlock user account
     public void toggleUserLocked(Long id) {
-        User user = findByID(id); // will throw if not found
+        User user = findByID(id); // Throws if not found
         user.setLocked(!user.isLocked());
         logger.info("User {} {}", user.isLocked() ? "locked:" : "unlocked:", user.getUsername());
         userRepository.save(user);
@@ -225,17 +244,14 @@ public class UserService {
         return user.isPresent() && !user.get().getId().equals(currentUserId);
     }
 
-    // List all users
-    public List<User> listAllUsers() {
-        return userRepository.findAll();
-    }
-
     // Handle user verification (TODO)
 
     // Change / reset password
+    @Transactional
     public User changePassword(Long id, String newPassword) {
         User user = findByID(id); // will throw if not found
         if (!ValidationUtils.isValidPassword(newPassword)) {
+            logger.warn("Password change failed for user {}: weak password", user.getUsername());
             throw new IllegalArgumentException(
                     "Password must have at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character");
         }

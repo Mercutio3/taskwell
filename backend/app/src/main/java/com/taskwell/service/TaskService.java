@@ -10,6 +10,8 @@ import com.taskwell.repository.TaskRepository;
 import com.taskwell.repository.UserRepository;
 import com.taskwell.utils.ValidationUtils;
 
+import jakarta.transaction.Transactional;
+
 import com.taskwell.model.Task;
 import com.taskwell.model.User;
 import com.taskwell.model.TaskStatus;
@@ -35,6 +37,7 @@ public class TaskService {
     }
 
     // Create new task (and assign to user)
+    @Transactional
     public Task createTask(Task task) {
         if (task == null) {
             throw new NullPointerException("Task must not be null");
@@ -59,6 +62,7 @@ public class TaskService {
     }
 
     // Update an existing task
+    @Transactional
     public Task updateTask(Long id, Task updatedTask) {
         if (updatedTask == null) {
             throw new IllegalArgumentException("Updated task must not be null");
@@ -125,28 +129,37 @@ public class TaskService {
     }
 
     // Mark task as completed
+    @Transactional
     public Task markTaskAsCompleted(Long id) {
-        Task task = findTaskById(id).orElseThrow(() -> {
-            return new IllegalArgumentException("Task not found");
-        });
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        Task existingTask = findTaskById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+        if (!existingTask.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not own this task");
+        }
         logger.info("Marking task {} as completed", id);
-        task.setStatus(TaskStatus.COMPLETE);
-        task.setCompletedAt(LocalDateTime.now());
-        return taskRepository.save(task);
+        existingTask.setStatus(TaskStatus.COMPLETE);
+        existingTask.setCompletedAt(LocalDateTime.now());
+        return taskRepository.save(existingTask);
     }
 
     // Mark task as uncompleted
+    @Transactional
     public Task markTaskAsUncompleted(Long id) {
-        Task task = findTaskById(id).orElseThrow(() -> {
-            return new IllegalArgumentException("Task not found");
-        });
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        Task existingTask = findTaskById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+        if (!existingTask.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not own this task");
+        }
         logger.info("Marking task {} as uncompleted", id);
-        task.setStatus(TaskStatus.PENDING);
-        task.setCompletedAt(null);
-        return taskRepository.save(task);
+        existingTask.setStatus(TaskStatus.PENDING);
+        existingTask.setCompletedAt(null);
+        return taskRepository.save(existingTask);
     }
 
     // Delete task
+    @Transactional
     public boolean deleteTask(Long id) {
 
         CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
@@ -155,14 +168,9 @@ public class TaskService {
         if (!existingTask.getUser().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("You do not own this task");
         }
-
-        if (findTaskById(id).isPresent()) {
-            logger.info("Deleted task: {}", id);
-            taskRepository.deleteById(id);
-            return true;
-        }
-        logger.error("Task deletion failed. Task not found: {}", id);
-        return false;
+        logger.info("Deleted task: {}", id);
+        taskRepository.deleteById(id);
+        return true;
     }
 
     // List tasks by due date
@@ -183,15 +191,16 @@ public class TaskService {
     }
 
     // Assign / reassign task to a user
+    @Transactional
     public Task assignTaskToUser(Long taskId, User user) {
-        if (user == null || user.getId() == null || !userRepository.findById(user.getId()).isPresent()) {
+        if (user == null || user.getId() == null) {
             throw new IllegalArgumentException("Invalid user");
         }
-        Task task = findTaskById(taskId).orElseThrow(() -> {
-            return new IllegalArgumentException("Task not found");
-        });
-        task.setUser(user);
-        logger.info("Assigned task {} to user {}", taskId, user);
+        User userEntity = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Task task = findTaskById(taskId).orElseThrow(() -> new IllegalArgumentException("Task not found"));
+        task.setUser(userEntity);
+        logger.info("Assigned task {} to user {}", taskId, userEntity.getId());
         return taskRepository.save(task);
     }
 }
