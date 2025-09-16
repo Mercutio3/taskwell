@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { fetchCurrentUser } from '../services/user'
 import { verifyCurrentUser } from '../services/user'
 import { updateEmail, updateUsername } from '../services/api'
+import { isValidEmail } from '../utils/validation'
+import { isValidPassword } from '../utils/validation'
+import { isValidUsername } from '../utils/validation'
 
 function Profile () {
     const [user, setUser] = useState(null);
@@ -20,6 +23,10 @@ function Profile () {
         setLoading(true);
         setError('');
         setSuccess('');
+        if(!isValidUsername(newUsername)){
+            setError('Username must be 3-50 characters, only letters, numbers, dots, underscores; no consecutive dots/underscores.');
+            return;
+        }
         try {
             await updateUsername(user.id, newUsername);
             setSuccess('Username updated successfully!');
@@ -41,6 +48,10 @@ function Profile () {
         setLoading(true);
         setError('');
         setSuccess('');
+        if(!isValidEmail(newEmail)){
+            setError('Please enter a valid email address.');
+            return;
+        }
         try {
             await updateEmail(user.id, newEmail);
             setSuccess('Email updated successfully!');
@@ -59,6 +70,11 @@ function Profile () {
     const handlePasswordChange = (e) => setNewPassword(e.target.value);
     const handlePasswordSubmit = (e) => {
         e.preventDefault();
+        setError('');
+        if (!isValidPassword(newPassword)) {
+            setError('Password must be 8-50 characters, include uppercase, lowercase, number, and special character.');
+            return;
+        }
         // Handle password update logic here
     }
 

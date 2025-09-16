@@ -7,9 +7,8 @@ export async function fetchCurrentUser() {
         credentials: 'include',
     });
     if (!res.ok) {
-        const error = new Error('Failed to fetch user info');
-        error.status = res.status;
-        throw error;
+        const errorText = await res.text();
+        throw new Error(errorText || 'Failed to fetch user info');
     }
     return res.json();
 }
@@ -19,6 +18,9 @@ export async function verifyCurrentUser() {
         method: 'PUT',
         credentials: 'include',
     });
-    if (!res.ok) throw new Error('Failed to verify user');
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || 'Failed to verify user');
+    }
     return res;
 }

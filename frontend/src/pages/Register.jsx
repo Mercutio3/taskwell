@@ -4,6 +4,9 @@ import StatusMessage from '../components/StatusMessage'
 //import "./Register.css"
 import { registerUser } from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import { isValidEmail } from '../utils/validation'
+import { isValidPassword } from '../utils/validation'
+import { isValidUsername } from '../utils/validation'
 
 function Register () {
     const [form, setForm] = useState({
@@ -31,8 +34,23 @@ function Register () {
         setLoading(true);
         setError('');
         // Confirm password validation
+        if(!isValidUsername(form.username)){
+            setError('Username must be 3-50 characters, only letters, numbers, dots, underscores; no consecutive dots/underscores.');
+            setLoading(false);
+            return;
+        }
+        if(!isValidEmail(form.email)){
+            setError('Please enter a valid email address.');
+            setLoading(false);
+            return;
+        }
         if (form.password !== confirmPassword) {
             setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+        if(!isValidPassword(form.password)){
+            setError('Password must be at least 8 characters, include uppercase, lowercase, number, and special character.');
             setLoading(false);
             return;
         }

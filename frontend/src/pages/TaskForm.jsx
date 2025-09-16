@@ -12,6 +12,7 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
         dueDate: '',
         category: ''
     });
+    const [localError, setLocalError] = useState('');
 
     useEffect(() => {
         if(initialTask) {
@@ -27,10 +28,27 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
             ...form,
             [e.target.name]: e.target.value
         });
+        if (localError) setLocalError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if(!form.title.trim()) {
+            setLocalError('Title is required');
+            return;
+        }
+        if(!form.dueDate) {
+            setLocalError('Due date is required');
+            return;
+        }
+        // Due date validation: must not be in the past
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const dueDate = new Date(form.dueDate);
+        if (dueDate < today) {
+            setLocalError('Due date cannot be in the past.');
+            return;
+        }
         await onSubmit(form);
     };
 
@@ -41,6 +59,7 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                 <h1>{initialTask ? 'Edit Task' : 'New Task'}</h1>
                 <p>Welcome to your task form! Here you can create a new task.</p>
                 <StatusMessage loading={loading} error={error} success={success} />
+                {localError && <div style={{ color: 'red', marginBottom: '1em' }}>{localError}</div>}
                 <form className="taskform" onSubmit={handleSubmit}>
                     <input name="title" value={form.title} onChange={handleChange} placeholder="Task Title" required />
                     <input name="description" value={form.description} onChange={handleChange} placeholder="Task Description" />

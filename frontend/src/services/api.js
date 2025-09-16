@@ -26,7 +26,10 @@ export async function loginUser(data) {
     }),
     credentials: 'include', // for cookies/sessions
   });
-  if (!res.ok) throw new Error('Login failed');
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || 'Login failed');
+  }
   return res;
 }
 
@@ -38,9 +41,8 @@ export async function updateUsername(userId, newUsername) {
     credentials: 'include',
   });
   if (!res.ok) {
-    const error = new Error('Failed to update username');
-    error.status = res.status;
-    throw error;
+    const errorText = await res.text();
+    throw new Error(errorText || 'Failed to update username');
   }
   return res.json();
 }
@@ -53,9 +55,8 @@ export async function updateEmail(userId, newEmail) {
     credentials: 'include',
   });
   if (!res.ok) {
-    const error = new Error('Failed to update email');
-    error.status = res.status;
-    throw error;
+    const errorText = await res.text();
+    throw new Error(errorText || 'Failed to update email');
   }
   return res.json();
 }
@@ -68,9 +69,8 @@ export async function createTask(data) {
     credentials: 'include',
   });
   if (!res.ok) {
-    const error = new Error('Failed to create task');
-    error.status = res.status;
-    throw error;
+    const errorText = await res.text();
+    throw new Error(errorText || 'Task creation failed');
   }
   return res.json();
 }
@@ -79,7 +79,10 @@ export async function getTask(id) {
   const res = await fetch(`${BASE_URL}/tasks/${id}`, {
     credentials: 'include',
   });
-  if (!res.ok) throw new Error('Failed to fetch task');
+  if (!res.ok){
+    const errorText = await res.text();
+    throw new Error(errorText || 'Failed to fetch task');
+  }
   return res.json();
 }
 
@@ -90,7 +93,10 @@ export async function updateTask(id, data) {
     body: JSON.stringify(data),
     credentials: 'include',
   });
-  if (!res.ok) throw new Error('Task update failed');
+  if (!res.ok){
+    const errorText = await res.text();
+    throw new Error(errorText || 'Task update failed');
+  }
   return res.json();
 }
 
@@ -99,7 +105,11 @@ export async function deleteTask(id) {
     method: 'DELETE',
     credentials: 'include',
   });
-  if (!res.ok) throw new Error('Failed to delete task');
+  if (!res.ok){
+    const errorText = await res.text();
+    throw new Error(errorText || 'Failed to delete task');
+  }
+  return;
 }
 
 export async function completeTask(id) {
@@ -107,7 +117,11 @@ export async function completeTask(id) {
     method: 'POST',
     credentials: 'include',
   });
-  if (!res.ok) throw new Error('Failed to complete task');
+  if (!res.ok){
+    const errorText = await res.text();
+    throw new Error(errorText || 'Failed to complete task');
+  }
+  return res.json();
 }
 
 export async function uncompleteTask(id) {
@@ -115,5 +129,9 @@ export async function uncompleteTask(id) {
     method: 'POST',
     credentials: 'include',
   });
-  if (!res.ok) throw new Error('Failed to uncomplete task');
+  if (!res.ok){
+    const errorText = await res.text();
+    throw new Error(errorText || 'Failed to uncomplete task');
+  }
+  return res.json();
 }
