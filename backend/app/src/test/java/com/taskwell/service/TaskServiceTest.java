@@ -38,8 +38,8 @@ class TaskServiceTest {
     void createTask_Success() {
         Task task = new Task();
         task.setTitle("Valid Task Name");
+        task.setDueDate(LocalDateTime.now().plusDays(1)); // (Valid due date)
 
-        // Mock SecurityUtils.getCurrentUser() to return a verified user
         try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
                 com.taskwell.utils.SecurityUtils.class)) {
             com.taskwell.model.User user = new com.taskwell.model.User();
@@ -153,6 +153,35 @@ class TaskServiceTest {
 
         // Verifications
         verify(taskRepository, never()).save(any());
+    }
+
+    void createTask_DueDateInPast_ThrowsException() {
+        Task task = new Task();
+        task.setTitle("Valid Task Name");
+        task.setDueDate(LocalDateTime.now().minusDays(1)); // Invalid due date (in the past)
+
+        try (MockedStatic<com.taskwell.utils.SecurityUtils> mockedSecurity = mockStatic(
+                com.taskwell.utils.SecurityUtils.class)) {
+            com.taskwell.model.User user = new com.taskwell.model.User();
+            user.setId(1L);
+            user.setVerified(true);
+            com.taskwell.security.CustomUserDetails principal = new com.taskwell.security.CustomUserDetails(user);
+            mockedSecurity.when(com.taskwell.utils.SecurityUtils::getCurrentUser).thenReturn(principal);
+
+            try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
+                mocked.when(() -> ValidationUtils.isValidTaskName(anyString())).thenReturn(true);
+                mocked.when(() -> ValidationUtils.isValidDueDate(any())).thenReturn(false);
+
+                // Assertions
+                Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                    taskService.createTask(task);
+                });
+                assertTrue(exception.getMessage().contains("Due date cannot be in the past"));
+
+                // Verifications
+                verify(taskRepository, never()).save(task);
+            }
+        }
     }
 
     @Test

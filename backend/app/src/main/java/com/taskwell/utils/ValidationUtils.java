@@ -30,9 +30,16 @@ public class ValidationUtils {
         return password.length() >= 8 && password.length() <= 100;
     }
 
-    // Vaidation methods for Task entity
+    // Validation methods for Task entity
 
     public static boolean isValidTaskName(String taskName) {
         return taskName != null && taskName.length() >= 1 && taskName.length() <= 100;
+    }
+
+    public static boolean isValidDueDate(java.time.LocalDateTime dueDate) {
+        if (dueDate == null)
+            return false;
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        return !dueDate.isBefore(now.toLocalDate().atStartOfDay());
     }
 }

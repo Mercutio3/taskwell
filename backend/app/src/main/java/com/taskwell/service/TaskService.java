@@ -51,6 +51,9 @@ public class TaskService {
         if (!ValidationUtils.isValidTaskName(task.getTitle())) {
             throw new IllegalArgumentException("Invalid task name");
         }
+        if (!ValidationUtils.isValidDueDate(task.getDueDate())) {
+            throw new IllegalArgumentException("Due date cannot be in the past");
+        }
 
         // Set the current user as the owner
         User userEntity = userRepository.findById(currentUser.getId())
@@ -69,6 +72,9 @@ public class TaskService {
         }
         if (!ValidationUtils.isValidTaskName(updatedTask.getTitle())) {
             throw new IllegalArgumentException("Invalid task name");
+        }
+        if (!ValidationUtils.isValidDueDate(updatedTask.getDueDate())) {
+            throw new IllegalArgumentException("Due date cannot be in the past");
         }
         CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
         Task existingTask = findTaskById(id)
