@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { useEffect , useState } from 'react';
+import { formatCategory } from '../../utils/formatting'
 
 function CategoryPieChart({ tasks }) {
     const [loading, setLoading] = useState(true);
@@ -15,7 +16,7 @@ function CategoryPieChart({ tasks }) {
         .then(tasks => {
             const chartData = Object.entries(
                 tasks.reduce((acc, task) => {
-                    const category = task.category || 'Uncategorized';
+                    const category = formatCategory(task.category) || 'Uncategorized';
                     acc[category] = (acc[category] || 0) + 1;
                     return acc;
                 }, {})

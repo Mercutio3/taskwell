@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.taskwell.repository.TaskRepository;
 import com.taskwell.repository.UserRepository;
 import com.taskwell.model.Task;
+import com.taskwell.model.TaskCategory;
 import com.taskwell.model.TaskPriority;
 import com.taskwell.model.TaskStatus;
 import com.taskwell.model.User;
@@ -264,33 +265,28 @@ class TaskServiceTest {
     void findTasksByCategory_Success() {
         Task task = new Task();
         task.setId(1L);
-        task.setCategory("Work");
-        when(taskRepository.findByCategory("Work")).thenReturn(List.of(task));
-        List<Task> tasks = taskService.findTasksByCategory("Work");
+        task.setCategory(TaskCategory.WORK);
+        when(taskRepository.findByCategory(TaskCategory.WORK)).thenReturn(List.of(task));
+        List<Task> tasks = taskService.findTasksByCategory(TaskCategory.WORK);
         assertEquals(1, tasks.size());
         assertEquals(task, tasks.get(0));
-        verify(taskRepository).findByCategory("Work");
+        verify(taskRepository).findByCategory(TaskCategory.WORK);
     }
 
     @Test
     void findTasksByCategory_NoTasks_ReturnsEmptyList() {
-        when(taskRepository.findByCategory("Work")).thenReturn(List.of());
-        List<Task> tasks = taskService.findTasksByCategory("Work");
+        when(taskRepository.findByCategory(TaskCategory.WORK)).thenReturn(List.of());
+        List<Task> tasks = taskService.findTasksByCategory(TaskCategory.WORK);
         assertTrue(tasks.isEmpty());
-        verify(taskRepository).findByCategory("Work");
+        verify(taskRepository).findByCategory(TaskCategory.WORK);
     }
 
     @Test
-    void findTasksByCategory_NullOrEmptyCategory_ThrowsException() {
-        Exception exception1 = assertThrows(IllegalArgumentException.class, () -> {
+    void findTasksByCategory_NullCategory_ThrowsException() {
+        Exception exception = assertThrows(NullPointerException.class, () -> {
             taskService.findTasksByCategory(null);
         });
-        assertTrue(exception1.getMessage().contains("Category must not be null or empty"));
-
-        Exception exception2 = assertThrows(IllegalArgumentException.class, () -> {
-            taskService.findTasksByCategory("   ");
-        });
-        assertTrue(exception2.getMessage().contains("Category must not be null or empty"));
+        assertTrue(exception.getMessage().contains("Category must not be null"));
 
         verify(taskRepository, never()).findByCategory(any());
     }

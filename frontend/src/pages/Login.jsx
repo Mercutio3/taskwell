@@ -35,7 +35,7 @@ function Login () {
     }
 
     return (
-        <div>
+        <div className="page-center">
             <h1>Login</h1>
             <StatusMessage loading={loading} error={error} />
             <form onSubmit={handleSubmit}>

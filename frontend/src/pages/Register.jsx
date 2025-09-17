@@ -67,7 +67,7 @@ function Register () {
     };
 
     return (
-        <div>
+        <div className="page-center">
             <h1>Registration</h1>
             <StatusMessage loading={loading} error={error} success={success} />
             <form onSubmit={handleSubmit}>

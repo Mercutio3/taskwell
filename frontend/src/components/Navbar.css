@@ -11,8 +11,8 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem; /* You can reduce this if needed */
-    margin: 0 auto;
+    gap: 2rem;
+    margin: 0;
 }
 
 .navbar-logo {

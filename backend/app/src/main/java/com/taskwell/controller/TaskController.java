@@ -8,6 +8,7 @@ import com.taskwell.service.TaskService;
 import com.taskwell.service.UserService;
 import com.taskwell.model.TaskStatus;
 import com.taskwell.model.TaskPriority;
+import com.taskwell.model.TaskCategory;
 import com.taskwell.utils.SecurityUtils;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Arrays;
 
 @RestController
 @Tag(name = "Task API", description = "Operations related to tasks.")
@@ -158,7 +160,7 @@ public class TaskController {
     @GetMapping("/api/tasks/category/{category}")
     public ResponseEntity<List<Task>> getTasksByCategory(
             @Parameter(description = "Category of the tasks to retrieve.") @PathVariable String category) {
-        List<Task> tasks = taskService.findTasksByCategory(category);
+        List<Task> tasks = taskService.findTasksByCategory(TaskCategory.valueOf(category.toUpperCase()));
         logger.info("Fetched tasks by category={}, count={}", category, tasks.size());
         return ResponseEntity.ok(tasks);
     }
@@ -235,5 +237,10 @@ public class TaskController {
         Task assignedTask = taskService.assignTaskToUser(taskId, user);
         logger.info("Task assigned: taskId={}, userId={}", taskId, userId);
         return ResponseEntity.ok(assignedTask);
+    }
+
+    @GetMapping("/api/tasks/categories")
+    public ResponseEntity<List<String>> getAllCategories() {
+        return ResponseEntity.ok(Arrays.stream(TaskCategory.values()).map(Enum::name).toList());
     }
 }

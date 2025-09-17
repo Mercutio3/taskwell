@@ -17,7 +17,6 @@ function Dashboard() {
                     navigate('/unauthorized');
                     return null;
                 }
-                // ...existing logic
             })
     }, [navigate]);
 

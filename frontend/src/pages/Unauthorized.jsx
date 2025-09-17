@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 function Unauthorized() {
     return (
-        <div>
+        <div className="page-center">
             <h1>401 - Unauthorized</h1>
             <p>You must be logged in to access this.</p>
             <Link to="/login" className="btn">Login</Link>

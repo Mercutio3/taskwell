@@ -37,7 +37,7 @@ public class Task {
     private User user; // The user to whom the task is assigned
 
     @NotNull(message = "Status is required")
-    private TaskStatus status; // Pending, In Progress, Completed..
+    private TaskStatus status;
 
     @FutureOrPresent
     private LocalDateTime dueDate;
@@ -55,8 +55,7 @@ public class Task {
     @NotNull(message = "Priority is required")
     private TaskPriority priority; // LOW, MEDIUM, HIGH
 
-    @Size(max = 100, message = "Category must be at most 100 characters")
-    private String category;
+    private TaskCategory category;
 
     // No-args constructor required by JPA
     public Task() {
@@ -140,11 +139,11 @@ public class Task {
         return priority;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(TaskCategory category) {
         this.category = category;
     }
 
-    public String getCategory() {
+    public TaskCategory getCategory() {
         return category;
     }
 }

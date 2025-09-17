@@ -16,6 +16,7 @@ import com.taskwell.model.Task;
 import com.taskwell.model.User;
 import com.taskwell.model.TaskStatus;
 import com.taskwell.model.TaskPriority;
+import com.taskwell.model.TaskCategory;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
@@ -118,9 +119,9 @@ public class TaskService {
         return taskRepository.findByStatus(status);
     }
 
-    public List<Task> findTasksByCategory(String category) {
-        if (category == null || category.trim().isEmpty()) {
-            throw new IllegalArgumentException("Category must not be null or empty");
+    public List<Task> findTasksByCategory(TaskCategory category) {
+        if (category == null) {
+            throw new NullPointerException("Category must not be null");
         }
         logger.info("Listing tasks in category: {}", category);
         return taskRepository.findByCategory(category);

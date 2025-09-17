@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.taskwell.model.Task;
+import com.taskwell.model.TaskCategory;
+
 import java.util.List;
 import com.taskwell.model.User;
 import java.time.LocalDateTime;
@@ -18,7 +20,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByStatus(TaskStatus status);
 
-    List<Task> findByCategory(String category);
+    List<Task> findByCategory(TaskCategory category);
 
     List<Task> findByPriority(TaskPriority priority);
 

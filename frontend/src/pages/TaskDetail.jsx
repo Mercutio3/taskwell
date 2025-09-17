@@ -2,6 +2,7 @@ import Navbar from '../components/Navbar'
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { completeTask, uncompleteTask } from '../services/api'
+import { formatCategory } from '../utils/formatting'
 
 function TaskDetail() {
     const { id } = useParams()
@@ -89,7 +90,7 @@ function TaskDetail() {
                         <p><strong>Status:</strong> {task.status}</p>
                         <p><strong>Priority:</strong> {task.priority}</p>
                         <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>
-                        <p><strong>Category:</strong> {task.category}</p>
+                        <p><strong>Category:</strong> {formatCategory(task.category)}</p>
                         <p><strong>Created At:</strong> {new Date(task.createdAt).toLocaleString()}</p>
                         <p><strong>Updated At:</strong> {new Date(task.updatedAt).toLocaleString()}</p>
                         <div><button onClick={handleToggleComplete} disabled={toggleLoading}>

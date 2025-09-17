@@ -2,6 +2,7 @@ import Navbar from '../components/Navbar'
 import StatusMessage from '../components/StatusMessage'
 import { useState, useEffect } from 'react'
 import "./TaskForm.css"
+import { formatCategory } from '../utils/formatting'
 
 function TaskForm( {initialTask, onSubmit, loading, error, success}) {
     const [form, setForm] = useState({
@@ -13,6 +14,7 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
         category: ''
     });
     const [localError, setLocalError] = useState('');
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         if(initialTask) {
@@ -21,6 +23,10 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                 dueDate: initialTask.dueDate ? initialTask.dueDate.slice(0,10) : ''
             });
         }
+        fetch('http://localhost:8080/api/tasks/categories', { credentials: 'include' })
+            .then(res => res.json())
+            .then(setCategories)
+            .catch(() => setCategories([]));
     }, [initialTask]);
 
     const handleChange = (e) => {
@@ -74,7 +80,12 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                         <option value="MEDIUM">Medium</option>
                         <option value="HIGH">High</option>
                     </select>
-                    <input name="category" value={form.category} onChange={handleChange} placeholder="Category" />
+                    <select name="category" value={form.category} onChange={handleChange} placeholder="Category" required>
+                        <option value="">Select Category</option>
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{formatCategory(cat)}</option>
+                        ))}
+                    </select>
                     <button type="submit" disabled={loading}>{initialTask ? 'Update Task' : 'Create Task'}</button>
                 </form>
             </div>
