@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { isValidEmail } from '../utils/validation'
 import { isValidPassword } from '../utils/validation'
 import { isValidUsername } from '../utils/validation'
+import Spinner from '../components/Spinner'
 
 function Register () {
     const [form, setForm] = useState({
@@ -70,12 +71,19 @@ function Register () {
         <div className="page-center">
             <h1>Registration</h1>
             <StatusMessage loading={loading} error={error} success={success} />
-            <form onSubmit={handleSubmit}>
-                <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required />
-                <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" required />
-                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" required />
-                <input name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm Password" required />
-                <button type="submit">Register</button>
+            <div aria-live="assertLive" style={{color: 'red'}}>{error}</div>
+            <form onSubmit={handleSubmit} aria-busy={loading} aria-label="Registration Form">
+                <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required aria-describedby="username-desc"/>
+                <span id="username-desc">Username must be between 3-50 characters, only letters, numbers, dots, and underscores; no consecutive dots/underscores.</span>
+                <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" required aria-describedby="email-desc"/>
+                <span id="email-desc">Enter your email address</span>
+                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" required aria-describedby="password-desc"/>
+                <span id="password-desc">Password must be at least 8 characters and include at least one uppercase, lowercase, number, and special character.</span>
+                <input name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm Password" required aria-describedby="confirm-password-desc"/>
+                <span id="confirm-password-desc">Confirm your password</span>
+                <button type="submit" disabled={loading}>
+                    {loading ? <Spinner /> : 'Register'}
+                </button>
             </form>
             <p>Already have an account? <Link to="/login">Login</Link></p>
         </div>

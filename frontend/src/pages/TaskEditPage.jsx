@@ -2,6 +2,7 @@ import TaskForm from './TaskForm';
 import { updateTask, getTask } from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import Spinner from '../components/Spinner';
 
 function TaskEditPage() {
     const { id } = useParams();
@@ -36,13 +37,16 @@ function TaskEditPage() {
     if(!task) return <div>Loading task...</div>;
 
     return (
-        <TaskForm
-            initialTask={task}
-            onSubmit={handleUpdate}
-            loading={loading}
-            error={error}
-            success={success && 'Task updated!'}
-        />
+        <div aria-busy={loading}>
+            {loading && <Spinner aria-label="Loading task form..." />}
+            <TaskForm
+                initialTask={task}
+                onSubmit={handleUpdate}
+                loading={loading}
+                error={error}
+                success={success && 'Task updated!'}
+            />
+        </div>
     )
 }
 

@@ -14,7 +14,7 @@ function Logout() {
   }, [navigate])
 
   return (
-    <div className="logout-container">
+    <div className="logout-container" aria-label="Logging out">
       <h1>Logging out...</h1>
     </div>
   )

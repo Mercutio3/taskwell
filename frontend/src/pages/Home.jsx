@@ -6,7 +6,7 @@ function Home() {
   return (
     <>
       <div className="background">
-        <div className="homepageInfo">
+        <div className="homepageInfo" aria-label="Home Page" role="main">
         <h1>Welcome to Taskwell!</h1>
         <p>Home page test.</p>
         <Link to="/dashboard">Go to Dashboard</Link>

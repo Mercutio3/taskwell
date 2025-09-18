@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Spinner from '../Spinner';
 
 function OverdueTasksWidget() {
     const [tasks, setTasks] = useState([]);
@@ -22,18 +23,18 @@ function OverdueTasksWidget() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div>Loading overdue tasks...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
+    if (loading) return <Spinner aria-label="Loading overdue tasks..." />;
+    if (error) return <div style={{ color: 'red' }} aria-live="assertive">{error}</div>;
 
     return (
-        <div className="widget overdue-tasks-widget">
+        <div className="widget overdue-tasks-widget" aria-label="Overdue Tasks Widget" role="region">
             <h3>Overdue Tasks</h3>
             {tasks.length === 0 ? (
                 <p>No overdue tasks!</p>
             ) : (
-                <ul>
+                <ul role="list">
                     {tasks.map(task => (
-                        <li key={task.id}>
+                        <li key={task.id} role="listitem">
                             <strong>{task.title}</strong> - Overdue since {new Date(task.dueDate).toLocaleDateString()}
                         </li>
                     ))}

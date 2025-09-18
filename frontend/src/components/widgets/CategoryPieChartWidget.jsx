@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { useEffect , useState } from 'react';
-import { formatCategory } from '../../utils/formatting'
+import { formatCategory } from '../../utils/formatting';
+import Spinner from '../Spinner';
 
 function CategoryPieChart({ tasks }) {
     const [loading, setLoading] = useState(true);
@@ -29,8 +30,11 @@ function CategoryPieChart({ tasks }) {
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#8884D8'];
 
+    if (loading) return <Spinner aria-label="Loading category pie chart..." />;
+    if (error) return <div style={{ color: 'red' }} aria-live="assertive">{error}</div>;
+
     return (
-        <div className="widget category-piechart-widget">
+        <div className="widget category-piechart-widget" aria-label="Pie Chart of Tasks by Category" role="region">
             <h3>Tasks by Category</h3>
             <PieChart width={300} height={250}>
                 <Pie

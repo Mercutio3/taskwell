@@ -16,7 +16,7 @@ function NotFound() {
     return (
         <>
             <Navbar />
-            <div className="page-center">
+            <div className="page-center" role="alert" aria-label="404 Not Found Page">
                 <h1>404 - Not Found</h1>
                 <p>The page you are looking for does not exist.</p>
                 <div style={{ margin: '2rem 0' }}>

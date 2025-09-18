@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Spinner from '../Spinner';
 
 function UpcomingTasksWidget() {
     const [tasks, setTasks] = useState([]);
@@ -23,18 +24,18 @@ function UpcomingTasksWidget() {
             .finally(() => setLoading(false));
     }, []);
 
-    if(loading) return <div>Loading upcoming tasks...</div>;
-    if(error) return <div style={{ color: 'red' }}>{error}</div>;
+    if(loading) return <Spinner aria-label="Loading upcoming tasks..." />;
+    if(error) return <div style={{ color: 'red' }} aria-live="assertive">{error}</div>;
 
     return (
-        <div className="widget upcoming-tasks-widget">
+        <div className="widget upcoming-tasks-widget" aria-label="Upcoming Tasks Widget" role="region">
             <h3>Upcoming Tasks</h3>
             {tasks.length === 0 ? (
                 <p>No upcoming tasks!</p>
             ) : (
-                <ul>
+                <ul role="list">
                     {tasks.map(task => (
-                        <li key={task.id}>
+                        <li key={task.id} role="listitem">
                             <strong>{task.title}</strong> - Due {new Date(task.dueDate).toLocaleDateString()}
                         </li>
                     ))}

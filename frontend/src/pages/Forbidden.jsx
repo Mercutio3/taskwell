@@ -16,7 +16,7 @@ function Forbidden() {
     return (
         <>
             <Navbar />
-            <div className="forbidden-container" style={{ textAlign: 'center', marginTop: '3rem' }}>
+            <div className="forbidden-container" style={{ textAlign: 'center', marginTop: '3rem' }} role="alert" aria-label="Forbidden Page">
                 <h1>403 - Forbidden</h1>
                 <p>You do not have permission to access this page or resource.</p>
                 <div style={{ margin: '2rem 0' }}>

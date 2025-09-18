@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Spinner from '../Spinner'; 
 
 function TaskSummaryWidget() {
     const [summary, setSummary] = useState({ total: 0, complete: 0, pending: 0 });
@@ -21,16 +22,16 @@ function TaskSummaryWidget() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div>Loading summary...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
+    if (loading) return <Spinner aria-label="Loading task summary..." />;
+    if (error) return <div style={{ color: 'red' }} aria-live="assertive">{error}</div>;
 
     return (
-        <div className="widget task-summary-widget">
+        <div className="widget task-summary-widget" aria-label="Task Summary Widget" role="region">
             <h3>Task Summary</h3>
-            <ul>
-                <li>Total tasks: {summary.total}</li>
-                <li>Completed: {summary.complete}</li>
-                <li>Uncompleted: {summary.pending}</li>
+            <ul role="list">
+                <li role="listitem">Total tasks: {summary.total}</li>
+                <li role="listitem">Completed: {summary.complete}</li>
+                <li role="listitem">Uncompleted: {summary.pending}</li>
             </ul>
         </div>
     );

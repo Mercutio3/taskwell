@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import Spinner from '../Spinner';
 
 function ProductivityChartWidget() {
     const [data, setData] = useState([]);
@@ -47,11 +48,11 @@ function ProductivityChartWidget() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div>Loading productivity chart...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
+    if (loading) return <Spinner aria-label="Loading productivity chart..." />;
+    if (error) return <div style={{ color: 'red' }} aria-live="assertive">{error}</div>;
 
     return (
-        <div className="widget productivity-chart-widget">
+        <div className="widget productivity-chart-widget" aria-label="Chart of Tasks Created and Completed Over Time" role="region">
             <h3>Productivity (Last 7 Days)</h3>
             <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>

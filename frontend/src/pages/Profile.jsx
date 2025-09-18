@@ -7,6 +7,7 @@ import { updateEmail, updateUsername } from '../services/api'
 import { isValidEmail } from '../utils/validation'
 import { isValidPassword } from '../utils/validation'
 import { isValidUsername } from '../utils/validation'
+import Spinner from '../components/Spinner'
 
 function Profile () {
     const [user, setUser] = useState(null);
@@ -104,13 +105,13 @@ function Profile () {
     return (
         <>
             <Navbar />
-            <div className="profile-container">
+            <div className="profile-container" aria-busy={loading} aria-label="Profile Page" role="main">
                 <h1>Profile</h1>
                 <p>Welcome to your profile! Here you can see and edit your personal information.</p>
-                {loading && <div>Loading account info...</div>}
+                {loading && <Spinner aria-label="Loading profile..." />}
                 {error && <div style={{ color: 'red' }}>{error}</div>}
                 {user && (
-                    <div className="profile-info">
+                    <div className="profile-info" aria-label="User Information">
                         <h2>Account Information</h2>
                         <p><strong>Username:</strong> {user.username}</p>
                         <p><strong>Email:</strong> {user.email}</p>
@@ -121,8 +122,9 @@ function Profile () {
                     {showUsernameForm ? 'Cancel' : 'Edit Username'}
                 </button></div>
                 {showUsernameForm && (
-                    <form className="profile-edit-form" onSubmit={handleUsernameSubmit}>
-                        <input name="newusername" value={newUsername} onChange={handleUsernameChange} />
+                    <form className="profile-edit-form" onSubmit={handleUsernameSubmit} aria-label="Edit Username Form">
+                        <input name="newusername" value={newUsername} onChange={handleUsernameChange} aria-describedby="username-req"/>
+                        <span id="username-req">Username must be 3-50 characters and can only contain letters, numbers, dots, underscores; no consecutive dots/underscores.</span>
                         <button type="submit">Save</button>
                     </form>
                 )}
@@ -130,8 +132,9 @@ function Profile () {
                     {showEmailForm ? 'Cancel' : 'Edit Email'}
                 </button></div>
                 {showEmailForm && (
-                    <form className="profile-edit-form" onSubmit={handleEmailSubmit}>
-                        <input name="newemail" value={newEmail} onChange={handleEmailChange} />
+                    <form className="profile-edit-form" onSubmit={handleEmailSubmit} aria-label="Edit Email Form">
+                        <input name="newemail" value={newEmail} onChange={handleEmailChange} aria-describedby="email-req" />
+                        <span id="email-req">Email must be a valid email address.</span>
                         <button type="submit">Save</button>
                     </form>
                 )}
@@ -139,13 +142,16 @@ function Profile () {
                     {showPasswordForm ? 'Cancel' : 'Edit Password'}
                 </button></div>
                 {showPasswordForm && (
-                    <form className="profile-edit-form" onSubmit={handlePasswordSubmit}>
-                        <input name="newpassword" type="password" value={newPassword} onChange={handlePasswordChange} />
+                    <form className="profile-edit-form" onSubmit={handlePasswordSubmit} aria-label="Edit Password Form">
+                        <input name="newpassword" type="password" value={newPassword} onChange={handlePasswordChange} aria-describedby="password-req" />
+                        <span id="password-req">Password must be at least 8 characters and include at least one uppercase, lowercase, number, and special character.</span>
                         <button type="submit">Save</button>
                     </form>
                 )}
                 <div><button onClick={handleVerify}>Verify Account</button></div>
-                <div className="profile-settings">[Settings Panel]</div>
+                <div className="profile-settings" aria-label="Settings Panel" role="region">[Settings Panel]</div>
+                {error && <div style={{ color: 'red' }} aria-live="assertive">{error}</div>}
+                {success && <div style={{ color: 'green' }} aria-live="polite">{success}</div>}
             </div>
         </>
     )

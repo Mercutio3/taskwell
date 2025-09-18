@@ -3,6 +3,7 @@ import StatusMessage from '../components/StatusMessage'
 import { useState, useEffect } from 'react'
 import "./TaskForm.css"
 import { formatCategory } from '../utils/formatting'
+import Spinner from '../components/Spinner'
 
 function TaskForm( {initialTask, onSubmit, loading, error, success}) {
     const [form, setForm] = useState({
@@ -66,7 +67,7 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                 <p>Welcome to your task form! Here you can create a new task.</p>
                 <StatusMessage loading={loading} error={error} success={success} />
                 {localError && <div style={{ color: 'red', marginBottom: '1em' }}>{localError}</div>}
-                <form className="taskform" onSubmit={handleSubmit}>
+                <form className="taskform" onSubmit={handleSubmit} aria-busy={loading} aria-label="Task Form">
                     <input name="title" value={form.title} onChange={handleChange} placeholder="Task Title" required />
                     <input name="description" value={form.description} onChange={handleChange} placeholder="Task Description" />
                     <input name="dueDate" type="date" value={form.dueDate} onChange={handleChange} placeholder="Due Date" required />
@@ -86,8 +87,11 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                             <option key={cat} value={cat}>{formatCategory(cat)}</option>
                         ))}
                     </select>
-                    <button type="submit" disabled={loading}>{initialTask ? 'Update Task' : 'Create Task'}</button>
+                    <button type="submit" disabled={loading}>
+                        {loading ? <Spinner aria-label="Loading..." /> : (initialTask ? 'Update Task' : 'Create Task')}
+                    </button>
                 </form>
+                {localError && <div style={{ color: 'red', marginBottom: '1em' }} aria-live="assertive">{localError}</div>}
             </div>
         </>
     )

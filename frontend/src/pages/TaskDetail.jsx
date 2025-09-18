@@ -75,10 +75,10 @@ function TaskDetail() {
     return (
         <>
             <Navbar />
-            <div className="taskdetail-container">
+            <div className="taskdetail-container" aria-busy={loading} aria-label="Task Details">
                 <h1>Task Details</h1>
-                {loading && <div>Loading task...</div>}
-                {error && <div style={{ color: 'red' }}>{error}</div>}
+                {loading && <Spinner aria-label="Loading task details..." />}
+                {error && <div style={{ color: 'red' }} aria-live="assertive">{error}</div>}
                 {task && (
                     <div className="taskdetail-info">
                         <h2>{task.title}</h2>
@@ -94,7 +94,7 @@ function TaskDetail() {
                         </button></div>
                         <div><button onClick={() => navigate(`/tasks/edit/${task.id}`)}>Edit Task</button></div>
                         <div><button onClick={handleDelete}>Delete Task</button></div>
-                        <Link to="/tasks">Back to Task List</Link>
+                        <Link to="/tasks" aria-label="Back to Task List">Back to Task List</Link>
                     </div>
                 )}
             </div>
