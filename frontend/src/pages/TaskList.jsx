@@ -14,26 +14,21 @@ function TaskList() {
     useEffect(() => {
         async function fetchTasks() {
             try {
-                const userRes = await fetch('http://localhost:8080/api/users/me', {
+                // If backend supports /api/tasks for current user, use it
+                const res = await fetch('http://localhost:8080/api/tasks', {
                     credentials: 'include',
-                })
-                if (!userRes.ok) throw new Error('Failed to fetch user info')
-                const user = await userRes.json()
-                            
-                const res = await fetch(`http://localhost:8080/api/tasks/user/${user.id}`, {
-                    credentials: 'include',
-                })
-                if (!res.ok) throw new Error('Failed to fetch tasks')
-                const data = await res.json()
-                setTasks(data)
+                });
+                if (!res.ok) throw new Error('Failed to fetch tasks');
+                const data = await res.json();
+                setTasks(data);
             } catch (err) {
-                setTasks([])
+                setTasks([]);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         }
-        fetchTasks()
-    }, [])
+        fetchTasks();
+    }, []);
 
     // Filtered tasks (search + filters)
     const filteredTasks = tasks.filter(task => {

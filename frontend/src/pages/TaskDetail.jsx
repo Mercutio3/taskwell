@@ -18,10 +18,6 @@ function TaskDetail() {
             credentials: 'include',
         })
             .then(res => {
-                if(res.status == 401){
-                    navigate('/unauthorized');
-                    return null;
-                }
                 if(res.status == 403){
                     navigate('/forbidden');
                     return null;

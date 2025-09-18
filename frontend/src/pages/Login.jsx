@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import StatusMessage from '../components/StatusMessage'
 import { loginUser } from '../services/api'
+import { useAuth } from '../context/AuthContext';
 
 function Login () {
     const [form, setForm] = useState({
@@ -12,6 +13,7 @@ function Login () {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         setForm({
@@ -26,6 +28,7 @@ function Login () {
         setError('');
         try {
             await loginUser(form);
+            login();
             navigate('/dashboard');
         } catch (err) {
             setError('Login failed. Please check your credentials.');

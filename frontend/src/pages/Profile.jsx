@@ -97,15 +97,9 @@ function Profile () {
         setLoading(true);
         fetchCurrentUser()
             .then(setUser)
-            .catch(err => {
-                if (err.status === 401) {
-                    navigate('/unauthorized');
-                } else {
-                    setError(err.message);
-                }
-            })
+            .catch(err => setError(err.message))
             .finally(() => setLoading(false));
-    }, [navigate]);
+    }, []);
 
     return (
         <>

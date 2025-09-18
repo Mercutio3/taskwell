@@ -1,6 +1,4 @@
 import Navbar from '../components/Navbar'
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import TaskSummaryWidget from '../components/widgets/TaskSummaryWidget';
 import UpcomingTasksWidget from '../components/widgets/UpcomingTasksWidget';
 import OverdueTasksWidget from '../components/widgets/OverdueTasksWidget';
@@ -8,18 +6,6 @@ import ProductivityChartWidget from '../components/widgets/ProductivityChartWidg
 import CategoryPieChart from '../components/widgets/CategoryPieChartWidget';
 
 function Dashboard() {
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        fetch('http://localhost:8080/api/users/me', { credentials: 'include' })
-            .then(res => {
-                if (res.status === 401) {
-                    navigate('/unauthorized');
-                    return null;
-                }
-            })
-    }, [navigate]);
-
     return (
         <>
             <Navbar />

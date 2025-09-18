@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound';
 import "./App.css"
 import Logout from './pages/Logout';
 import Unauthorized from './pages/Unauthorized';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -21,12 +22,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/tasks" element={<TaskList />} />
-        <Route path="/tasks/:id" element={<TaskDetail />} />
-        <Route path="/tasks/new" element={<TaskFormPage />} />
-        <Route path="/tasks/edit/:id" element={<TaskEditPage />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/tasks" element={<ProtectedRoute><TaskList /></ProtectedRoute>} />
+        <Route path="/tasks/:id" element={<ProtectedRoute><TaskDetail /></ProtectedRoute>} />
+        <Route path="/tasks/new" element={<ProtectedRoute><TaskFormPage /></ProtectedRoute>} />
+        <Route path="/tasks/edit/:id" element={<ProtectedRoute><TaskEditPage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/forbidden" element={<Forbidden />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="/logout" element={<Logout />} />

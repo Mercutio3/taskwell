@@ -2,23 +2,14 @@ import TaskForm from './TaskForm';
 import { createTask } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 function TaskFormPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        fetch('http://localhost:8080/api/users/me', { credentials: 'include' })
-            .then(res => {
-                if (res.status === 401) {
-                    navigate('/unauthorized');
-                    return null;
-                }
-                // ...existing logic
-            })
-    }, [navigate]);
+    const { isVerified } = useAuth();
 
     const handleCreate = async (form) => {
         setLoading(true);
@@ -32,7 +23,8 @@ function TaskFormPage() {
                 navigate('/tasks');
             }, 1000);
         } catch (error) {
-            if(error.status === 403) {
+            const status = error?.status || error?.response?.status || error?.response?.data?.status;
+            if (status === 403 || !isVerified) {
                 setError('Please verify your account to create tasks.');
             } else {
                 setError('Failed to create task');
