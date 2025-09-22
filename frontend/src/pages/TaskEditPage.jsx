@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Spinner from '../components/Spinner';
 
-function TaskEditPage() {
+function TaskEditPage({ skipDelay = false }) {
     const { id } = useParams();
     const [task, setTask] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -24,9 +24,13 @@ function TaskEditPage() {
             const dueDateTime = form.dueDate ? new Date(form.dueDate).toISOString() : null;
             await updateTask(id, { ...form, dueDate: dueDateTime });
             setSuccess(true);
-            setTimeout(() => {
+            if(skipDelay){
                 navigate('/tasks/' + id);
-            }, 1000);
+            } else {
+                setTimeout(() => {
+                    navigate('/tasks/' + id);
+                }, 1000);
+            }
         } catch (error) {
             setError('Failed to update task');
         } finally {

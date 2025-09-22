@@ -25,6 +25,10 @@ function Login () {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!form.username.trim() || !form.password.trim()) {
+            setError('Username and password are required.');
+            return;
+        }
         setLoading(true);
         setError('');
         try {
@@ -42,11 +46,11 @@ function Login () {
         <div className="page-center">
             <h1>Login</h1>
             <StatusMessage loading={loading} error={error} />
-            <div aria-live="assertLive" style={{color: 'red'}}>{error}</div>
+            <div aria-live="assertive" style={{color: 'red'}}>{error}</div>
             <form onSubmit={handleSubmit} aria-busy={loading} aria-label="Login Form">
-                <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required aria-describedby="username-desc"/>
+                <input name="username" value={form.username} onChange={handleChange} placeholder="Username" aria-describedby="username-desc"/>
                 <span id="username-desc">Enter your username</span>
-                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" required aria-describedby="password-desc"/>
+                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" aria-describedby="password-desc"/>
                 <span id="password-desc">Enter your password</span>
                 <button type="submit" disabled={loading}>
                     {loading ? <Spinner /> : 'Login'}

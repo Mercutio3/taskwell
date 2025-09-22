@@ -8,13 +8,15 @@ function Logout() {
     fetch('http://localhost:8080/logout', {
       method: 'POST',
       credentials: 'include',
-    }).finally(() => {
-      navigate('/login', { replace: true })
     })
+      .catch(() => {})
+      .finally(() => {
+        navigate('/login', { replace: true });
+      });
   }, [navigate])
 
   return (
-    <div className="logout-container" aria-label="Logging out">
+    <div className="logout-container" role="alert" aria-label="Logging out">
       <h1>Logging out...</h1>
     </div>
   )

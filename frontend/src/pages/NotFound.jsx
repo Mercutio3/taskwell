@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { useNavigate } from 'react-router-dom';
 
 function NotFound() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    
-        useEffect(() => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
             fetch('http://localhost:8080/api/users/me', {
                 credentials: 'include',
             })
@@ -23,9 +24,9 @@ function NotFound() {
                     {isLoggedIn === null ? (
                         <span>Checking login status...</span>
                     ) : isLoggedIn ? (
-                        <Link to="/dashboard" className="btn">Go to Dashboard</Link>
+                        <button onClick={() => navigate("/dashboard")} className="btn">Go to Dashboard</button>
                     ) : (
-                        <Link to="/login" className="btn">Login</Link>
+                        <button onClick={() => navigate("/login")} className="btn">Login</button>
                     )}
                 </div>
                 <p>If you believe this is an error, please contact support or try logging in with a different account.</p>

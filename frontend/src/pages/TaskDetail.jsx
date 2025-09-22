@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { completeTask, uncompleteTask } from '../services/api'
 import { formatCategory } from '../utils/formatting'
+import Spinner from '../components/Spinner'
 
 function TaskDetail() {
     const { id } = useParams()
@@ -75,7 +76,7 @@ function TaskDetail() {
     return (
         <>
             <Navbar />
-            <div className="taskdetail-container" aria-busy={loading} aria-label="Task Details">
+            <div className="taskdetail-container" aria-busy={loading} aria-label="Task Details" role="main">
                 <h1>Task Details</h1>
                 {loading && <Spinner aria-label="Loading task details..." />}
                 {error && <div style={{ color: 'red' }} aria-live="assertive">{error}</div>}

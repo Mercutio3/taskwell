@@ -5,6 +5,7 @@ import OverdueTasksWidget from '../components/widgets/OverdueTasksWidget';
 import ProductivityChartWidget from '../components/widgets/ProductivityChartWidget';
 import CategoryPieChart from '../components/widgets/CategoryPieChartWidget';
 import Spinner from '../components/Spinner';
+import React, { useState, useEffect } from 'react';
 
 function Dashboard() {
     const [loading, setLoading] = useState(true);
@@ -22,7 +23,7 @@ function Dashboard() {
                 {loading ? (
                     <Spinner aria-label="Loading dashboard widgets..." />
                 ) : (
-                    <div className="dashboard-widgets" aria-label="Task Widgets">
+                    <div className="dashboard-widgets" aria-label="Task Widgets" role="region">
                         <TaskSummaryWidget />
                         <UpcomingTasksWidget />
                         <OverdueTasksWidget />

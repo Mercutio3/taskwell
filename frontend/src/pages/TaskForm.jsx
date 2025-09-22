@@ -66,22 +66,22 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                 <h1>{initialTask ? 'Edit Task' : 'New Task'}</h1>
                 <p>Welcome to your task form! Here you can create a new task.</p>
                 <StatusMessage loading={loading} error={error} success={success} />
-                {localError && <div style={{ color: 'red', marginBottom: '1em' }}>{localError}</div>}
+                {localError && <div style={{ color: 'red', marginBottom: '1em' }} aria-live="assertive">{localError}</div>}
                 <form className="taskform" onSubmit={handleSubmit} aria-busy={loading} aria-label="Task Form">
-                    <input name="title" value={form.title} onChange={handleChange} placeholder="Task Title" required />
+                    <input name="title" value={form.title} onChange={handleChange} placeholder="Task Title" />
                     <input name="description" value={form.description} onChange={handleChange} placeholder="Task Description" />
-                    <input name="dueDate" type="date" value={form.dueDate} onChange={handleChange} placeholder="Due Date" required />
-                    <select name="status" value={form.status} onChange={handleChange} placeholder="Status">
+                    <input name="dueDate" type="date" value={form.dueDate} onChange={handleChange} placeholder="Due Date" />
+                    <select name="status" value={form.status} onChange={handleChange} placeholder="Status" aria-label="Task Status">
                         <option value="PENDING">Pending</option>
                         <option value="IN_PROGRESS">In Progress</option>
                         <option value="COMPLETE">Completed</option>
                     </select>
-                    <select name="priority" value={form.priority} onChange={handleChange} placeholder="Priority">
+                    <select name="priority" value={form.priority} onChange={handleChange} placeholder="Priority" aria-label="Task Priority">
                         <option value="LOW">Low</option>
                         <option value="MEDIUM">Medium</option>
                         <option value="HIGH">High</option>
                     </select>
-                    <select name="category" value={form.category} onChange={handleChange} placeholder="Category" required>
+                    <select name="category" value={form.category} onChange={handleChange} placeholder="Category" aria-label="Task Category">
                         <option value="">Select Category</option>
                         {categories.map(cat => (
                             <option key={cat} value={cat}>{formatCategory(cat)}</option>
@@ -91,7 +91,7 @@ function TaskForm( {initialTask, onSubmit, loading, error, success}) {
                         {loading ? <Spinner aria-label="Loading..." /> : (initialTask ? 'Update Task' : 'Create Task')}
                     </button>
                 </form>
-                {localError && <div style={{ color: 'red', marginBottom: '1em' }} aria-live="assertive">{localError}</div>}
+                {/* Error message is now rendered only once above the form */}
             </div>
         </>
     )

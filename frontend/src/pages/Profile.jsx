@@ -123,7 +123,7 @@ function Profile () {
                 </button></div>
                 {showUsernameForm && (
                     <form className="profile-edit-form" onSubmit={handleUsernameSubmit} aria-label="Edit Username Form">
-                        <input name="newusername" value={newUsername} onChange={handleUsernameChange} aria-describedby="username-req"/>
+                        <input name="newusername" value={newUsername} onChange={handleUsernameChange} aria-describedby="username-req" aria-label="New Username"/>
                         <span id="username-req">Username must be 3-50 characters and can only contain letters, numbers, dots, underscores; no consecutive dots/underscores.</span>
                         <button type="submit">Save</button>
                     </form>
@@ -133,7 +133,7 @@ function Profile () {
                 </button></div>
                 {showEmailForm && (
                     <form className="profile-edit-form" onSubmit={handleEmailSubmit} aria-label="Edit Email Form">
-                        <input name="newemail" value={newEmail} onChange={handleEmailChange} aria-describedby="email-req" />
+                        <input name="newemail" value={newEmail} onChange={handleEmailChange} aria-describedby="email-req" aria-label="New Email" />
                         <span id="email-req">Email must be a valid email address.</span>
                         <button type="submit">Save</button>
                     </form>

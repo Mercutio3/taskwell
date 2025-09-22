@@ -31,28 +31,40 @@ function Register () {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+    console.log('handleSubmit called');
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+        // Empty fields check
+        if (!form.username.trim() || !form.email.trim() || !form.password.trim() || !confirmPassword.trim()) {
+            setError('All fields are required.');
+            setLoading(false);
+            console.log('Validation branch: empty fields', { form, confirmPassword });
+            return;
+        }
         // Confirm password validation
         if(!isValidUsername(form.username)){
             setError('Username must be 3-50 characters, only letters, numbers, dots, underscores; no consecutive dots/underscores.');
             setLoading(false);
+            console.log('Validation branch: invalid username', { username: form.username });
             return;
         }
         if(!isValidEmail(form.email)){
             setError('Please enter a valid email address.');
             setLoading(false);
+            console.log('Validation branch: invalid email', { email: form.email });
             return;
         }
         if (form.password !== confirmPassword) {
             setError('Passwords do not match');
             setLoading(false);
+            console.log('Validation branch: password mismatch', { password: form.password, confirmPassword });
             return;
         }
         if(!isValidPassword(form.password)){
             setError('Password must be at least 8 characters, include uppercase, lowercase, number, and special character.');
             setLoading(false);
+            console.log('Validation branch: invalid password', { password: form.password });
             return;
         }
         try {
@@ -73,13 +85,13 @@ function Register () {
             <StatusMessage loading={loading} error={error} success={success} />
             <div aria-live="assertLive" style={{color: 'red'}}>{error}</div>
             <form onSubmit={handleSubmit} aria-busy={loading} aria-label="Registration Form">
-                <input name="username" value={form.username} onChange={handleChange} placeholder="Username" required aria-describedby="username-desc"/>
+                <input name="username" value={form.username} onChange={handleChange} placeholder="Username" aria-describedby="username-desc"/>
                 <span id="username-desc">Username must be between 3-50 characters, only letters, numbers, dots, and underscores; no consecutive dots/underscores.</span>
-                <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" required aria-describedby="email-desc"/>
+                <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" aria-describedby="email-desc"/>
                 <span id="email-desc">Enter your email address</span>
-                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" required aria-describedby="password-desc"/>
+                <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" aria-describedby="password-desc"/>
                 <span id="password-desc">Password must be at least 8 characters and include at least one uppercase, lowercase, number, and special character.</span>
-                <input name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm Password" required aria-describedby="confirm-password-desc"/>
+                <input name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm Password" aria-describedby="confirm-password-desc"/>
                 <span id="confirm-password-desc">Confirm your password</span>
                 <button type="submit" disabled={loading}>
                     {loading ? <Spinner /> : 'Register'}

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
 
-function TaskFormPage() {
+function TaskFormPage({ skipDelay = false }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -20,9 +20,13 @@ function TaskFormPage() {
             const dueDateTime = form.dueDate ? new Date(form.dueDate).toISOString() : null;
             await createTask({ ...form, dueDate: dueDateTime });
             setSuccess(true);
-            setTimeout(() => {
+            if (skipDelay) {
                 navigate('/tasks');
-            }, 1000);
+            } else {
+                setTimeout(() => {
+                    navigate('/tasks');
+                }, 1000);
+            }
         } catch (error) {
             const status = error?.status || error?.response?.status || error?.response?.data?.status;
             if (status === 403 || !isVerified) {

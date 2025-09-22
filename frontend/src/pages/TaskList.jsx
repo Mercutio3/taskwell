@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Spinner from '../components/Spinner'
 
 function TaskList() {
     const [tasks, setTasks] = useState([])
@@ -52,7 +53,7 @@ function TaskList() {
     return (
         <>
             <Navbar />
-            <div className="tasklist-container" aria-label="Task List Page">
+            <div className="tasklist-container" aria-label="Task List Page" role="main">
                 <h1>Task List</h1>
                 <p>Welcome to your task list! Here you can see all your tasks and manage them effectively.</p>
                 <div className="tasklist" aria-label="Task List Controls and Items">

@@ -7,7 +7,8 @@ export function isValidUsername(username) {
 }
 
 export function isValidEmail(email) {
-  return /^[^@]+@[^@]+\.[^@]+$/.test(email);
+  // Stricter email validation: must have one @, at least one dot after @, and valid characters
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 }
 
 export function isValidPassword(password) {
