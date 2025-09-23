@@ -7,15 +7,22 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  backend:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: |
-            cd backend
-            ./gradlew clean build
-      - name: Run tests
-        run: |
-            cd backend
-            ./gradlew test
+      - name: Build Backend
+        run: cd backend && ./gradlew clean build
+            
+      - name: Test Backend
+        run: cd backend && ./gradlew test
+
+  frontend:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Frontend Dependencies
+        run: cd frontend && npm install
+
+      - name: Test Frontend
+        run: cd frontend && npx jest
