@@ -29,7 +29,7 @@ test("Renders Forbidden component", async () => {
             <Forbidden />
         </BrowserRouter>
     );
-    expect(screen.getByRole("alert", { name: /forbidden page/i })).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: /forbidden page/i })).toBeInTheDocument();
     expect(screen.getByText(/403 - forbidden/i)).toBeInTheDocument();
     expect(screen.getByText(/you do not have permission to access this page or resource./i)).toBeInTheDocument();
     const button = await screen.findByRole("button", { name: /go to dashboard/i });

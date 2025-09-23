@@ -101,7 +101,7 @@ test("Shows spinner when loading", async () => {
     fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: 'Goodpass1!' } });
     fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
-    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/loading/i).length).toBeGreaterThan(0);
 });
 
 test("Redirects on successful login", async () => {

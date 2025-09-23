@@ -121,10 +121,13 @@ test("Shows error on invalid email", async () => {
     const saveButton = screen.getByRole('button', { name: /save/i });
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, 'invalidemail');
+    await waitFor(() => {
+        expect(emailInput.value).toBe('invalidemail');
+    });
     await userEvent.click(saveButton);
 
-    const errorDiv = await screen.findByText(/Please enter a valid email address/i, { selector: '[aria-live="assertive"]' });
-    expect(errorDiv).toBeInTheDocument();
+        const errorDiv = await screen.findByText(/Please enter a valid email address/i, { selector: '[aria-live="assertive"]' });
+        expect(errorDiv).toBeInTheDocument();
 });
 
 test("Handles API error on username update", async () => {

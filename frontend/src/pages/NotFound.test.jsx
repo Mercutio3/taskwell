@@ -29,7 +29,7 @@ test("Renders NotFound component", async () => {
             <NotFound />
         </BrowserRouter>
     );
-    expect(screen.getByRole("alert", { name: /not found page/i })).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: /not found page/i })).toBeInTheDocument();
     expect(screen.getByText(/404 - not found/i)).toBeInTheDocument();
     expect(screen.getByText(/the page you are looking for does not exist./i)).toBeInTheDocument();
     const button = await screen.findByRole("button", { name: /go to dashboard/i });

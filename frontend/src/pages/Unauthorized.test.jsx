@@ -15,7 +15,7 @@ test("Renders Unauthorized component", () => {
             <Unauthorized />
         </BrowserRouter>
     );
-    expect(screen.getByRole("alert", { name: /unauthorized page/i })).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: /unauthorized page/i })).toBeInTheDocument();
     expect(screen.getByText(/401 - unauthorized/i)).toBeInTheDocument();
     expect(screen.getByText(/you must be logged in to access this./i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();

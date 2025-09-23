@@ -3,7 +3,7 @@ import { createTask } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import Spinner from '../components/Spinner';
+import StatusMessage from '../components/StatusMessage';
 
 function TaskFormPage({ skipDelay = false }) {
     const [loading, setLoading] = useState(false);
@@ -41,7 +41,7 @@ function TaskFormPage({ skipDelay = false }) {
 
     return (
         <div aria-busy={loading}>
-            {loading && <Spinner aria-label="Loading task form..." />}
+            <StatusMessage loading={loading} error={error} success={success && 'Task created!'} />
             <TaskForm
                 onSubmit={handleCreate}
                 loading={loading}

@@ -1,7 +1,7 @@
 import Navbar from '../components/Navbar'
-import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import StatusMessage from '../components/StatusMessage';
 
 function Forbidden() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,9 +18,9 @@ function Forbidden() {
     return (
         <>
             <Navbar />
-            <div className="forbidden-container" style={{ textAlign: 'center', marginTop: '3rem' }} role="alert" aria-label="Forbidden Page">
+            <div className="forbidden-container" style={{ textAlign: 'center', marginTop: '3rem' }} role="main" aria-label="Forbidden Page">
                 <h1>403 - Forbidden</h1>
-                <p>You do not have permission to access this page or resource.</p>
+                <StatusMessage error="You do not have permission to access this page or resource." />
                 <div style={{ margin: '2rem 0' }}>
                     {isLoggedIn === null ? (
                         <span>Checking login status...</span>

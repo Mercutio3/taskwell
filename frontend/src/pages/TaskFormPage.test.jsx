@@ -69,9 +69,9 @@ test("Handles task creation error for unverified user", async () => {
   await userEvent.type(screen.getByPlaceholderText(/due date/i), '2026-12-31');
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
-  await waitFor(() => {
-    expect(screen.getByText(/please verify your account to create tasks/i)).toBeInTheDocument();
-  });
+  const errors = await screen.findAllByText(/please verify your account to create tasks/i);
+  expect(errors.length).toBeGreaterThan(0);
+  errors.forEach(e => expect(e).toBeVisible());
 });
 
 test("Handles due date in the past", async () => {

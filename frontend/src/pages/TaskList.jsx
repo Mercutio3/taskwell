@@ -1,7 +1,7 @@
 import Navbar from '../components/Navbar'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Spinner from '../components/Spinner'
+import StatusMessage from '../components/StatusMessage'
 
 function TaskList() {
     const [tasks, setTasks] = useState([])
@@ -11,6 +11,7 @@ function TaskList() {
     const [priorityFilter, setPriorityFilter] = useState('')
     const [sortField, setSortField] = useState('title')
     const [sortDirection, setSortDirection] = useState('asc')
+        const [error, setError] = useState('');
 
     useEffect(() => {
         async function fetchTasks() {
@@ -22,7 +23,8 @@ function TaskList() {
                 const data = await res.json();
                 setTasks(data);
             } catch (err) {
-                setTasks([]);
+                    setTasks([]);
+                    setError('Failed to fetch tasks');
             } finally {
                 setLoading(false);
             }
@@ -56,6 +58,7 @@ function TaskList() {
             <div className="tasklist-container" aria-label="Task List Page" role="main">
                 <h1>Task List</h1>
                 <p>Welcome to your task list! Here you can see all your tasks and manage them effectively.</p>
+                <StatusMessage loading={loading} error={error} />
                 <div className="tasklist" aria-label="Task List Controls and Items">
                     <input
                         type="text"
@@ -94,11 +97,9 @@ function TaskList() {
                         </label>
                     </div>
                     <div className="tasklist-items" aria-live="polite">
-                        {loading ? (
-                            <Spinner aria-label="Loading tasks..." />
-                        ) : filteredTasks.length === 0 ? (
+                        {(!loading && filteredTasks.length === 0) ? (
                             <div>You have no tasks, or none that match your given search criteria. <Link to="/tasks/new">Create task</Link></div>
-                        ) : (
+                        ) : (!loading && filteredTasks.length > 0) ? (
                             <ul role="list">
                                 {sortedTasks.map(task => (
                                     <li key={task.id} role="listitem">
@@ -108,7 +109,7 @@ function TaskList() {
                                     </li>
                                 ))}
                             </ul>
-                        )}
+                        ) : null}
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { useNavigate } from 'react-router-dom';
+import StatusMessage from '../components/StatusMessage';
 
 function NotFound() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,9 +18,9 @@ function NotFound() {
     return (
         <>
             <Navbar />
-            <div className="page-center" role="alert" aria-label="404 Not Found Page">
+            <div className="page-center" role="main" aria-label="404 Not Found Page">
                 <h1>404 - Not Found</h1>
-                <p>The page you are looking for does not exist.</p>
+                <StatusMessage error="The page you are looking for does not exist." />
                 <div style={{ margin: '2rem 0' }}>
                     {isLoggedIn === null ? (
                         <span>Checking login status...</span>

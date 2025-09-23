@@ -92,7 +92,9 @@ test("Handles task editing error for unverified user", async () => {
   await userEvent.type(screen.getByPlaceholderText(/task title/i), 'Updated Task');
   await userEvent.click(screen.getByRole("button", { name: /update task/i }));
 
-  expect(await screen.findByText(/failed to update task/i)).toBeInTheDocument();
+  const errors = await screen.findAllByText(/failed to update task/i);
+  expect(errors.length).toBeGreaterThan(0);
+  errors.forEach(e => expect(e).toBeVisible());
 });
 
 test("Handles due date in the past", async () => {

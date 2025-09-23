@@ -24,7 +24,7 @@ test("Renders Logout component", () => {
             <Logout />
         </BrowserRouter>
     );
-    expect(screen.getByRole("alert", { name: /logging out/i })).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: /logging out/i })).toBeInTheDocument();
     expect(screen.getByText(/logging out.../i)).toBeInTheDocument();
 });
 

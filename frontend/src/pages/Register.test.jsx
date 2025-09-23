@@ -135,8 +135,8 @@ test("Shows spinner when loading", async () => {
     fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: 'Goodpass1!' } });
     fireEvent.change(screen.getByPlaceholderText("Confirm Password"), { target: { value: 'Goodpass1!' } });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
-    
-    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+
+    expect(screen.getAllByLabelText(/loading/i).length).toBeGreaterThan(0);
 });
 
 test("Spinner disappears after loading", async () => {
@@ -157,7 +157,7 @@ test("Spinner disappears after loading", async () => {
 
     // Wait for spinner to appear
     await waitFor(() => {
-        expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/loading/i).length).toBeGreaterThan(0);
     });
 
     // Wait for spinner to disappear
@@ -285,7 +285,7 @@ test("Form disables submit button when loading", async () => {
     // Check for disabled button and spinner
     const button = screen.getByRole("button", { type: "submit" });
     expect(button).toBeDisabled();
-    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/loading/i).length).toBeGreaterThan(0);
 });
 
 test("Pressing enter on any input submits the form", async () => {
