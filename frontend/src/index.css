@@ -11,17 +11,17 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --pastel-blue: #BEE3F8;
-  --pastel-pink: #FFD6E0;
-  --pastel-yellow: #FFF9C4;
-  --pastel-mint: #C8F7DC;
-  --pastel-lavender: #E6D7FF;
-  --pastel-white: #FFFFFF;
-  --pastel-border: #A0D8EE;
+  --pastel-blue: #bee3f8;
+  --pastel-pink: #ffd6e0;
+  --pastel-yellow: #fff9c4;
+  --pastel-mint: #c8f7dc;
+  --pastel-lavender: #e6d7ff;
+  --pastel-white: #ffffff;
+  --pastel-border: #a0d8ee;
   --pastel-shadow: 0 2px 8px rgba(190, 227, 248, 0.5);
   --main-radius: 16px;
   --main-padding: 1.5rem;
-  --main-font: 'Avenir';
+  --main-font: "Avenir";
 }
 
 html {
@@ -31,12 +31,12 @@ html {
 
 a {
   font-weight: 500;
-  color: #7B8FFF;
+  color: #7b8fff;
   text-decoration: none;
   transition: color 0.2s;
 }
 a:hover {
-  color: #FFB6C1;
+  color: #ffb6c1;
 }
 
 body {
@@ -61,15 +61,17 @@ h1 {
   line-height: 1.1;
 }
 
-h1, h2, h3 {
-  
+h1,
+h2,
+h3 {
   font-family: var(--main-font);
   margin-bottom: 0.5em;
-  color: #7B8FFF;
+  color: #7b8fff;
   font-weight: 700;
 }
 
-button, .btn {
+button,
+.btn {
   border-radius: 8px;
   border: 1.5px solid var(--pastel-border);
   padding: 0.7em 1.5em;
@@ -79,10 +81,13 @@ button, .btn {
   background: var(--pastel-pink);
   color: #444;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
   box-shadow: 0 1px 4px rgba(255, 214, 224, 0.12);
 }
-button:hover, .btn:hover {
+button:hover,
+.btn:hover {
   border-color: var(--pastel-mint);
   background: var(--pastel-yellow);
 }
@@ -91,7 +96,9 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   border-radius: 8px;
   border: 1.5px solid var(--pastel-border);
   padding: 0.7em;
@@ -125,7 +132,10 @@ input, select, textarea {
   border-radius: 8px;
 }
 
-.card, .widget, .tasklist, .homepageInfo {
+.card,
+.widget,
+.tasklist,
+.homepageInfo {
   background: var(--pastel-white);
   border-radius: var(--main-radius);
   border: 2px solid var(--pastel-border);
@@ -135,14 +145,16 @@ input, select, textarea {
   max-width: 600px;
 }
 
-.dashboard-container, .tasklist-container {
+.dashboard-container,
+.tasklist-container {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.page-center, .background {
+.page-center,
+.background {
   min-height: 100vh;
   display: flex;
   flex-direction: column;

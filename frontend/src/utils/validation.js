@@ -1,5 +1,5 @@
 export function isValidUsername(username) {
-  if (typeof username !== 'string') return false;
+  if (typeof username !== "string") return false;
   if (username.length < 3 || username.length > 50) return false;
   // Only letters, numbers, dots, underscores; no consecutive dots/underscores
   const validPattern = /^(?!.*([_.])\1)[a-zA-Z0-9._]+$/;
@@ -13,12 +13,12 @@ export function isValidEmail(email) {
 
 export function isValidPassword(password) {
   return (
-    typeof password === 'string' &&
+    typeof password === "string" &&
     password.length >= 8 &&
     password.length <= 50 &&
-    /[A-Z]/.test(password) &&      // at least one uppercase
-    /[a-z]/.test(password) &&      // at least one lowercase
-    /\d/.test(password) &&         // at least one number
-    /[^A-Za-z0-9]/.test(password)  // at least one special character
+    /[A-Z]/.test(password) && // at least one uppercase
+    /[a-z]/.test(password) && // at least one lowercase
+    /\d/.test(password) && // at least one number
+    /[^A-Za-z0-9]/.test(password) // at least one special character
   );
 }

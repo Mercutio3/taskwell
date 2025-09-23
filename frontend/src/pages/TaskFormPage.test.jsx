@@ -2,12 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import TaskFormPage from "./TaskFormPage";
-import React from "react";
-import { AuthProvider } from '../context/AuthContext';
-import { act } from "@testing-library/react";
+import { AuthProvider } from "../context/AuthContext";
 
-jest.mock('../services/api', () => ({
-  createTask: jest.fn().mockResolvedValue({})
+jest.mock("../services/api", () => ({
+  createTask: jest.fn().mockResolvedValue({}),
 }));
 
 const mockNavigate = jest.fn();
@@ -26,13 +24,15 @@ test("Renders TaskFormPage component with correct headings", () => {
       <BrowserRouter>
         <TaskFormPage />
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
   expect(screen.getByText(/welcome to your task form/i)).toBeInTheDocument();
   expect(screen.getByPlaceholderText(/task title/i)).toBeInTheDocument();
   expect(screen.getByPlaceholderText(/task description/i)).toBeInTheDocument();
   expect(screen.getByPlaceholderText(/due date/i)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /create task/i })).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: /create task/i }),
+  ).toBeInTheDocument();
 });
 
 test("Handles successful task creation", async () => {
@@ -41,20 +41,23 @@ test("Handles successful task creation", async () => {
       <BrowserRouter>
         <TaskFormPage skipDelay />
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
-  await userEvent.type(screen.getByPlaceholderText(/task title/i), 'New Task');
-  await userEvent.type(screen.getByPlaceholderText(/task description/i), 'Task Description');
-  await userEvent.type(screen.getByPlaceholderText(/due date/i), '2026-12-31');
+  await userEvent.type(screen.getByPlaceholderText(/task title/i), "New Task");
+  await userEvent.type(
+    screen.getByPlaceholderText(/task description/i),
+    "Task Description",
+  );
+  await userEvent.type(screen.getByPlaceholderText(/due date/i), "2026-12-31");
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
   await waitFor(() => {
-    expect(mockNavigate).toHaveBeenCalledWith('/tasks');
+    expect(mockNavigate).toHaveBeenCalledWith("/tasks");
   });
 });
 
 test("Handles task creation error for unverified user", async () => {
-  const { createTask } = require('../services/api');
+  const { createTask } = require("../services/api");
   createTask.mockRejectedValue({ status: 403 });
 
   render(
@@ -62,16 +65,21 @@ test("Handles task creation error for unverified user", async () => {
       <BrowserRouter>
         <TaskFormPage skipDelay />
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
-  await userEvent.type(screen.getByPlaceholderText(/task title/i), 'New Task');
-  await userEvent.type(screen.getByPlaceholderText(/task description/i), 'Task Description');
-  await userEvent.type(screen.getByPlaceholderText(/due date/i), '2026-12-31');
+  await userEvent.type(screen.getByPlaceholderText(/task title/i), "New Task");
+  await userEvent.type(
+    screen.getByPlaceholderText(/task description/i),
+    "Task Description",
+  );
+  await userEvent.type(screen.getByPlaceholderText(/due date/i), "2026-12-31");
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
-  const errors = await screen.findAllByText(/please verify your account to create tasks/i);
+  const errors = await screen.findAllByText(
+    /please verify your account to create tasks/i,
+  );
   expect(errors.length).toBeGreaterThan(0);
-  errors.forEach(e => expect(e).toBeVisible());
+  errors.forEach((e) => expect(e).toBeVisible());
 });
 
 test("Handles due date in the past", async () => {
@@ -80,19 +88,27 @@ test("Handles due date in the past", async () => {
       <BrowserRouter>
         <TaskFormPage skipDelay />
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
-  await userEvent.type(screen.getByPlaceholderText(/task title/i), 'New Task');
-  await userEvent.type(screen.getByPlaceholderText(/task description/i), 'Task Description');
+  await userEvent.type(screen.getByPlaceholderText(/task title/i), "New Task");
+  await userEvent.type(
+    screen.getByPlaceholderText(/task description/i),
+    "Task Description",
+  );
   const pastDate = new Date();
   pastDate.setDate(pastDate.getDate() - 1);
-  const pastDateString = pastDate.toISOString().split('T')[0];
-  await userEvent.type(screen.getByPlaceholderText(/due date/i), pastDateString);
+  const pastDateString = pastDate.toISOString().split("T")[0];
+  await userEvent.type(
+    screen.getByPlaceholderText(/due date/i),
+    pastDateString,
+  );
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
   await waitFor(() => {
     expect(
-      screen.getByText((content) => content.includes('Due date cannot be in the past'))
+      screen.getByText((content) =>
+        content.includes("Due date cannot be in the past"),
+      ),
     ).toBeInTheDocument();
   });
 });
@@ -103,15 +119,18 @@ test("Handles empty title field", async () => {
       <BrowserRouter>
         <TaskFormPage skipDelay />
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
-  await userEvent.type(screen.getByPlaceholderText(/task description/i), 'Task Description');
-  await userEvent.type(screen.getByPlaceholderText(/due date/i), '2026-12-31');
+  await userEvent.type(
+    screen.getByPlaceholderText(/task description/i),
+    "Task Description",
+  );
+  await userEvent.type(screen.getByPlaceholderText(/due date/i), "2026-12-31");
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
   await waitFor(() => {
     expect(
-      screen.getByText((content) => content.includes('Title is required'))
+      screen.getByText((content) => content.includes("Title is required")),
     ).toBeInTheDocument();
   });
 });
@@ -122,7 +141,7 @@ test("All form fields are focusable in order", async () => {
       <BrowserRouter>
         <TaskFormPage />
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 
   const titleInput = screen.getByPlaceholderText(/task title/i);

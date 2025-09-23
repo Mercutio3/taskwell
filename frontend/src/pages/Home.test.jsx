@@ -12,12 +12,14 @@ test("Renders Home component", async () => {
   render(
     <BrowserRouter>
       <Home />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   expect(screen.getByRole("main", { name: /home page/i })).toBeInTheDocument();
   expect(screen.getByText(/welcome to taskwell!/i)).toBeInTheDocument();
   expect(screen.getByText(/home page test./i)).toBeInTheDocument();
-  const registerButton = await screen.getByRole("button", { name: /register/i });
+  const registerButton = await screen.getByRole("button", {
+    name: /register/i,
+  });
   expect(registerButton).toBeInTheDocument();
   const loginButton = await screen.getByRole("button", { name: /login/i });
   expect(loginButton).toBeInTheDocument();
@@ -27,31 +29,35 @@ test("Register button redirects to /register", async () => {
   render(
     <BrowserRouter>
       <Home />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
-  const registerButton = await screen.getByRole("button", { name: /register/i });
+  const registerButton = await screen.getByRole("button", {
+    name: /register/i,
+  });
   fireEvent.click(registerButton);
-  expect(mockNavigate).toHaveBeenCalledWith('/register');
+  expect(mockNavigate).toHaveBeenCalledWith("/register");
 });
 
 test("Login button redirects to /login", async () => {
   render(
     <BrowserRouter>
       <Home />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   const loginButton = await screen.getByRole("button", { name: /login/i });
   fireEvent.click(loginButton);
-  expect(mockNavigate).toHaveBeenCalledWith('/login');
+  expect(mockNavigate).toHaveBeenCalledWith("/login");
 });
 
 test("Register button is focusable", async () => {
   render(
     <BrowserRouter>
       <Home />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
-  const registerButton = await screen.getByRole("button", { name: /register/i });
+  const registerButton = await screen.getByRole("button", {
+    name: /register/i,
+  });
   registerButton.focus();
   expect(registerButton).toHaveFocus();
 });
@@ -60,7 +66,7 @@ test("Login button is focusable", async () => {
   render(
     <BrowserRouter>
       <Home />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   const loginButton = await screen.getByRole("button", { name: /login/i });
   loginButton.focus();

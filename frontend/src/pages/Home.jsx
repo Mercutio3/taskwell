@@ -10,13 +10,15 @@ function Home() {
         <div className="homepageInfo" aria-label="Home Page" role="main">
           <h1>Welcome to Taskwell!</h1>
           <p>Home page test.</p>
-          <button onClick={() => navigate("/dashboard")}>Go to Dashboard</button>
+          <button onClick={() => navigate("/dashboard")}>
+            Go to Dashboard
+          </button>
           <button onClick={() => navigate("/register")}>Register</button>
           <button onClick={() => navigate("/login")}>Login</button>
         </div>
-      </div> 
+      </div>
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;

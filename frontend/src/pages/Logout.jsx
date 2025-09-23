@@ -1,25 +1,25 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Logout() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8080/logout', {
-      method: 'POST',
-      credentials: 'include',
+    fetch("http://localhost:8080/logout", {
+      method: "POST",
+      credentials: "include",
     })
       .catch(() => {})
       .finally(() => {
-        navigate('/login', { replace: true });
+        navigate("/login", { replace: true });
       });
-  }, [navigate])
+  }, [navigate]);
 
   return (
     <div className="logout-container" role="main" aria-label="Logging out">
       <h1>Logging out...</h1>
     </div>
-  )
+  );
 }
 
-export default Logout
+export default Logout;

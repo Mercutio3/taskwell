@@ -2,9 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import TaskEditPage from "./TaskEditPage";
-import React from "react";
-import { AuthProvider } from '../context/AuthContext';
-import { act } from "@testing-library/react";
+import { AuthProvider } from "../context/AuthContext";
 
 jest.mock("../services/api", () => ({
   getTask: jest.fn().mockResolvedValue({
@@ -16,7 +14,7 @@ jest.mock("../services/api", () => ({
     priority: "MEDIUM",
     category: "WORK",
   }),
-  updateTask: jest.fn().mockResolvedValue({})
+  updateTask: jest.fn().mockResolvedValue({}),
 }));
 
 const mockNavigate = jest.fn();
@@ -30,20 +28,26 @@ beforeEach(() => {
 });
 
 test("Renders TaskEditPage component with correct headings", async () => {
-    render(
-        <AuthProvider value={{ isVerified: true }}>
-        <MemoryRouter initialEntries={["/tasks/1/edit"]}>
-          <Routes>
-            <Route path="/tasks/:id/edit" element={<TaskEditPage />} />
-          </Routes>
-        </MemoryRouter>
-        </AuthProvider>
-    );
-    expect(await screen.findByRole('heading', { name: /edit task/i })).toBeInTheDocument();
-    expect(await screen.findByPlaceholderText(/task title/i)).toBeInTheDocument();
-    expect(await screen.findByPlaceholderText(/task description/i)).toBeInTheDocument();
-    expect(await screen.findByPlaceholderText(/due date/i)).toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: /update task/i })).toBeInTheDocument();
+  render(
+    <AuthProvider value={{ isVerified: true }}>
+      <MemoryRouter initialEntries={["/tasks/1/edit"]}>
+        <Routes>
+          <Route path="/tasks/:id/edit" element={<TaskEditPage />} />
+        </Routes>
+      </MemoryRouter>
+    </AuthProvider>,
+  );
+  expect(
+    await screen.findByRole("heading", { name: /edit task/i }),
+  ).toBeInTheDocument();
+  expect(await screen.findByPlaceholderText(/task title/i)).toBeInTheDocument();
+  expect(
+    await screen.findByPlaceholderText(/task description/i),
+  ).toBeInTheDocument();
+  expect(await screen.findByPlaceholderText(/due date/i)).toBeInTheDocument();
+  expect(
+    await screen.findByRole("button", { name: /update task/i }),
+  ).toBeInTheDocument();
 });
 
 test("Handles successful task update", async () => {
@@ -54,21 +58,27 @@ test("Handles successful task update", async () => {
           <Route path="/tasks/:id/edit" element={<TaskEditPage skipDelay />} />
         </Routes>
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 
   await screen.findByDisplayValue("Test Task");
 
   await userEvent.clear(screen.getByPlaceholderText(/task title/i));
-  await userEvent.type(screen.getByPlaceholderText(/task title/i), 'Updated Task');
+  await userEvent.type(
+    screen.getByPlaceholderText(/task title/i),
+    "Updated Task",
+  );
   await userEvent.clear(screen.getByPlaceholderText(/task description/i));
-  await userEvent.type(screen.getByPlaceholderText(/task description/i), 'Updated Description');
+  await userEvent.type(
+    screen.getByPlaceholderText(/task description/i),
+    "Updated Description",
+  );
   await userEvent.clear(screen.getByPlaceholderText(/due date/i));
-  await userEvent.type(screen.getByPlaceholderText(/due date/i), '2026-11-30');
+  await userEvent.type(screen.getByPlaceholderText(/due date/i), "2026-11-30");
   await userEvent.click(screen.getByRole("button", { name: /update task/i }));
 
   await waitFor(() => {
-    expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
+    expect(mockNavigate).toHaveBeenCalledWith("/tasks/1");
   });
 });
 
@@ -83,18 +93,21 @@ test("Handles task editing error for unverified user", async () => {
           <Route path="/tasks/:id/edit" element={<TaskEditPage skipDelay />} />
         </Routes>
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 
   await screen.findByDisplayValue("Test Task");
 
   await userEvent.clear(screen.getByPlaceholderText(/task title/i));
-  await userEvent.type(screen.getByPlaceholderText(/task title/i), 'Updated Task');
+  await userEvent.type(
+    screen.getByPlaceholderText(/task title/i),
+    "Updated Task",
+  );
   await userEvent.click(screen.getByRole("button", { name: /update task/i }));
 
   const errors = await screen.findAllByText(/failed to update task/i);
   expect(errors.length).toBeGreaterThan(0);
-  errors.forEach(e => expect(e).toBeVisible());
+  errors.forEach((e) => expect(e).toBeVisible());
 });
 
 test("Handles due date in the past", async () => {
@@ -105,7 +118,7 @@ test("Handles due date in the past", async () => {
           <Route path="/tasks/:id/edit" element={<TaskEditPage skipDelay />} />
         </Routes>
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 
   await screen.findByDisplayValue("Test Task");
@@ -113,15 +126,20 @@ test("Handles due date in the past", async () => {
   await userEvent.clear(screen.getByPlaceholderText(/due date/i));
   const pastDate = new Date();
   pastDate.setDate(pastDate.getDate() - 1);
-  const pastDateString = pastDate.toISOString().split('T')[0];
-  await userEvent.type(screen.getByPlaceholderText(/due date/i), pastDateString);
+  const pastDateString = pastDate.toISOString().split("T")[0];
+  await userEvent.type(
+    screen.getByPlaceholderText(/due date/i),
+    pastDateString,
+  );
   await userEvent.click(screen.getByRole("button", { name: /update task/i }));
 
   await waitFor(() => {
-      expect(
-        screen.getByText((content) => content.includes('Due date cannot be in the past'))
-      ).toBeInTheDocument();
-    });
+    expect(
+      screen.getByText((content) =>
+        content.includes("Due date cannot be in the past"),
+      ),
+    ).toBeInTheDocument();
+  });
 });
 
 test("Handles empty title field", async () => {
@@ -132,7 +150,7 @@ test("Handles empty title field", async () => {
           <Route path="/tasks/:id/edit" element={<TaskEditPage skipDelay />} />
         </Routes>
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 
   await screen.findByDisplayValue("Test Task");
@@ -141,10 +159,10 @@ test("Handles empty title field", async () => {
   await userEvent.click(screen.getByRole("button", { name: /update task/i }));
 
   await waitFor(() => {
-      expect(
-        screen.getByText((content) => content.includes('Title is required'))
-      ).toBeInTheDocument();
-    });
+    expect(
+      screen.getByText((content) => content.includes("Title is required")),
+    ).toBeInTheDocument();
+  });
 });
 
 test("All form fields are focusable in order", async () => {
@@ -155,7 +173,7 @@ test("All form fields are focusable in order", async () => {
           <Route path="/tasks/:id/edit" element={<TaskEditPage skipDelay />} />
         </Routes>
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 
   await screen.findByDisplayValue("Test Task");

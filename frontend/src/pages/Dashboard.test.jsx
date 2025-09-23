@@ -1,32 +1,34 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import Dashboard from './Dashboard';
+import { render, screen, waitFor } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import Dashboard from "./Dashboard";
 
 beforeAll(() => {
-    global.ResizeObserver = class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-    };
+  global.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
 });
 
-test('Renders Dashboard component', () => {
+test("Renders Dashboard component", () => {
   render(
     <BrowserRouter>
       <Dashboard />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
-  expect(screen.getByRole('main', { name: /dashboard overview/i })).toBeInTheDocument();
-    expect(screen.getByText(/welcome to your dashboard/i)).toBeInTheDocument();
+  expect(
+    screen.getByRole("main", { name: /dashboard overview/i }),
+  ).toBeInTheDocument();
+  expect(screen.getByText(/welcome to your dashboard/i)).toBeInTheDocument();
 });
 
 test("Shows spinner when loading", () => {
-    render(
-        <BrowserRouter>
-            <Dashboard />
-        </BrowserRouter>
-    );
-    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+  render(
+    <BrowserRouter>
+      <Dashboard />
+    </BrowserRouter>,
+  );
+  expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 });
 
 test("Renders widgets after loading", async () => {
@@ -34,17 +36,18 @@ test("Renders widgets after loading", async () => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
       ok: true,
-      json: () => Promise.resolve([
-        { status: 'COMPLETE' },
-        { status: 'PENDING' },
-        { status: 'COMPLETE' }
-      ])
-    })
+      json: () =>
+        Promise.resolve([
+          { status: "COMPLETE" },
+          { status: "PENDING" },
+          { status: "COMPLETE" },
+        ]),
+    }),
   );
   render(
     <BrowserRouter>
       <Dashboard />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   jest.runAllTimers();
   await waitFor(() => {
@@ -63,7 +66,7 @@ test("Dashboard container aria-busy updates after loading", async () => {
   render(
     <BrowserRouter>
       <Dashboard />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   expect(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
   jest.runAllTimers();
@@ -73,17 +76,19 @@ test("Dashboard container aria-busy updates after loading", async () => {
   jest.useRealTimers();
 });
 
-function testWidgetErrorDisplay(widgetLabelOrText) {
+function testWidgetErrorDisplay() {
   jest.useFakeTimers();
   global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
   render(
     <BrowserRouter>
       <Dashboard />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   jest.runAllTimers();
   return waitFor(() => {
-    expect(screen.getAllByText(/failed to fetch tasks/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/failed to fetch tasks/i).length,
+    ).toBeGreaterThan(0);
   }).finally(() => jest.useRealTimers());
 }
 
@@ -92,10 +97,10 @@ const widgetLabels = [
   "Upcoming Tasks",
   "Overdue Tasks",
   "Productivity",
-  "Tasks by Category"
+  "Tasks by Category",
 ];
 
-widgetLabels.forEach(widgetLabel => {
+widgetLabels.forEach((widgetLabel) => {
   test(`Shows error in ${widgetLabel} widget when fetch fails`, async () => {
     await testWidgetErrorDisplay(widgetLabel);
   });
@@ -105,19 +110,20 @@ test("Numbers in TaskSummaryWidget match mocked fetch data", async () => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
       ok: true,
-      json: () => Promise.resolve([
-        { status: 'COMPLETE' },
-        { status: 'PENDING' },
-        { status: 'COMPLETE' },
-        { status: 'PENDING' },
-        { status: 'PENDING' }
-      ])
-    })
+      json: () =>
+        Promise.resolve([
+          { status: "COMPLETE" },
+          { status: "PENDING" },
+          { status: "COMPLETE" },
+          { status: "PENDING" },
+          { status: "PENDING" },
+        ]),
+    }),
   );
   render(
     <BrowserRouter>
       <Dashboard />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
   jest.runAllTimers();
   await waitFor(() => {
