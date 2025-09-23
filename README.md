@@ -1,5 +1,5 @@
 # Taskwell
-Task manager application. Provides a REST API backend with Java and Spring Boot (gradle). Will later include a **React frontend** for managing tasks via a web app.
+Task manager application. Provides a REST API backend with Java and Spring Boot (gradle). Includes a simple **React frontend** for managing tasks via a web app.
 
 ## Backend (Spring Boot)
 
@@ -25,6 +25,15 @@ cd backend
 ./gradlew bootRun
 ```
 
+### Backend Testing
+
+Backend unit and integration tests are written with JUnit5 and Mockito. To run all these tests:
+
+```bash
+cd backend
+./gradlew test
+```
+
 ## Frontend (React)
 
 ### Features
@@ -42,6 +51,7 @@ cd backend
 - **Fetch API** (backend communication)
 - **CSS**
 - **ESLint**
+- **Jest + React Testing Library**
 
 ### Prerequisites
 
@@ -55,6 +65,24 @@ npm install
 npm run dev
 ```
 The frontend will run on port 5173 by default. For API calls, make sure the backend is running on port 8080.
+
+### Frontend Testing
+
+Frontend unit and integration tests are written with Jest and React Testing Library. To run all these tests:
+
+```bash
+cd frontend
+npx jest
+```
+
+### UX and Accessibility
+
+- All form fields, buttons, and error messages contain adequate ARIA attributes and are focusable.
+- Status messages and loading spinners are consistent across the app.
+
+## CI
+
+Both the frontend and backend are automatically tested upon every push or pull request to `main`. See `.github/workflows/ci.yml` for details.
 
 ## Authentication
 
