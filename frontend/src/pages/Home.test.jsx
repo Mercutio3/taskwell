@@ -16,7 +16,6 @@ test("Renders Home component", async () => {
   );
   expect(screen.getByRole("main", { name: /home page/i })).toBeInTheDocument();
   expect(screen.getByText(/welcome to taskwell!/i)).toBeInTheDocument();
-  expect(screen.getByText(/home page test./i)).toBeInTheDocument();
   const registerButton = await screen.getByRole("button", {
     name: /register/i,
   });

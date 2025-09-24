@@ -33,11 +33,11 @@ export async function loginUser(data) {
   return res;
 }
 
-export async function updateUsername(userId, newUsername) {
+export async function updateUsername(userId, newUsername, currentPassword) {
   const res = await fetch(`${BASE_URL}/users/${userId}/username`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: newUsername }),
+    body: JSON.stringify({ username: newUsername, currentPassword }),
     credentials: "include",
   });
   if (!res.ok) {
@@ -47,16 +47,30 @@ export async function updateUsername(userId, newUsername) {
   return res.json();
 }
 
-export async function updateEmail(userId, newEmail) {
+export async function updateEmail(userId, newEmail, currentPassword) {
   const res = await fetch(`${BASE_URL}/users/${userId}/email`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: newEmail }),
+    body: JSON.stringify({ email: newEmail, currentPassword }),
     credentials: "include",
   });
   if (!res.ok) {
     const errorText = await res.text();
     throw new Error(errorText || "Failed to update email");
+  }
+  return res.json();
+}
+
+export async function updatePassword(userId, newPassword, currentPassword) {
+  const res = await fetch(`${BASE_URL}/users/${userId}/password`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: newPassword, currentPassword }),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to update password");
   }
   return res.json();
 }

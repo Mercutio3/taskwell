@@ -54,28 +54,35 @@ function Profile() {
 
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [newEmail, setNewEmail] = useState("");
+  const [currentEmailPassword, setCurrentEmailPassword] = useState("");
   const handleEmailChange = (e) => {
     setNewEmail(e.target.value);
+  };
+  const handleCurrentEmailPasswordChange = (e) => {
+    setCurrentEmailPassword(e.target.value);
   };
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setLoading(false);
     setEmailError("");
     setSuccess("");
-    // Debug log for test
     if (!isValidEmail(newEmail)) {
       setEmailError("Please enter a valid email address.");
-      // Log after setting error
       setTimeout(() => {}, 0);
+      return;
+    }
+    if (!currentEmailPassword.trim()) {
+      setEmailError("Current password is required.");
       return;
     }
     setLoading(true);
     try {
-      await updateEmail(user.id, newEmail);
+      await updateEmail(user.id, newEmail, currentEmailPassword);
       setSuccess("Email updated successfully!");
       const updatedUser = await fetchCurrentUser();
       setUser(updatedUser);
       setShowEmailForm(false);
+      setCurrentEmailPassword("");
     } catch (err) {
       setEmailError(err.message);
     } finally {
@@ -85,17 +92,42 @@ function Profile() {
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [currentPasswordForUpdate, setCurrentPasswordForUpdate] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const handlePasswordChange = (e) => setNewPassword(e.target.value);
-  const handlePasswordSubmit = (e) => {
+  const handleCurrentPasswordForUpdateChange = (e) =>
+    setCurrentPasswordForUpdate(e.target.value);
+  const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value);
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordError("");
+    setSuccess("");
+    if (!currentPasswordForUpdate.trim()) {
+      setPasswordError("Current password is required.");
+      return;
+    }
     if (!isValidPassword(newPassword)) {
       setPasswordError(
         "Password must be 8-50 characters, include uppercase, lowercase, number, and special character.",
       );
       return;
     }
-    // Handle password update logic here
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New password and confirmation do not match.");
+      return;
+    }
+    try {
+      await import("../services/api").then(({ updatePassword }) =>
+        updatePassword(user.id, newPassword, currentPasswordForUpdate),
+      );
+      setSuccess("Password updated successfully!");
+      setShowPasswordForm(false);
+      setCurrentPasswordForUpdate("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      setPasswordError(err.message);
+    }
   };
 
   const handleVerify = async () => {
@@ -120,8 +152,6 @@ function Profile() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
-
-  // Debug: log newEmail on every render
 
   return (
     <>
@@ -197,7 +227,9 @@ function Profile() {
               onChange={handleCurrentPasswordChange}
               aria-label="Current Password"
             />
-            <span id="current-password-req">Enter your current password to confirm changes.</span>
+            <span id="current-password-req">
+              Enter your current password to confirm changes.
+            </span>
             <button type="submit">Save</button>
           </form>
         )}
@@ -223,6 +255,18 @@ function Profile() {
               aria-label="New Email"
             />
             <span id="email-req">Email must be a valid email address.</span>
+            <label htmlFor="currentEmailPassword">Current Password</label>
+            <input
+              id="currentEmailPassword"
+              name="currentEmailPassword"
+              type="password"
+              value={currentEmailPassword}
+              onChange={handleCurrentEmailPasswordChange}
+              aria-label="Current Password"
+            />
+            <span id="current-email-password-req">
+              Enter your current password to confirm changes.
+            </span>
             <button type="submit">Save</button>
           </form>
         )}
@@ -237,6 +281,18 @@ function Profile() {
             onSubmit={handlePasswordSubmit}
             aria-label="Edit Password Form"
           >
+            <label htmlFor="currentPasswordForUpdate">Current Password</label>
+            <input
+              id="currentPasswordForUpdate"
+              name="currentPasswordForUpdate"
+              type="password"
+              value={currentPasswordForUpdate}
+              onChange={handleCurrentPasswordForUpdateChange}
+              aria-label="Current Password"
+            />
+            <span id="current-password-update-req">
+              Enter your current password to confirm changes.
+            </span>
             <label htmlFor="newpassword">New Password</label>
             <input
               id="newpassword"
@@ -250,6 +306,18 @@ function Profile() {
             <span id="password-req">
               Password must be at least 8 characters and include at least one
               uppercase, lowercase, number, and special character.
+            </span>
+            <label htmlFor="confirmPassword">Confirm New Password</label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              aria-label="Confirm New Password"
+            />
+            <span id="confirm-password-req">
+              Re-enter your new password for confirmation.
             </span>
             <button type="submit">Save</button>
           </form>

@@ -52,9 +52,11 @@ test("Handle username change", async () => {
   });
   await userEvent.click(editButton);
   const usernameInput = screen.getByRole("textbox", { name: /new username/i });
+  const passwordInput = screen.getByLabelText(/current password/i);
   const saveButton = screen.getByRole("button", { name: /save/i });
   await userEvent.clear(usernameInput);
   await userEvent.type(usernameInput, "newusername");
+  await userEvent.type(passwordInput, "currentpassword");
   await userEvent.click(saveButton);
 
   await waitFor(() => {
@@ -77,9 +79,11 @@ test("Handle email change", async () => {
   const editButton = await screen.findByRole("button", { name: /edit email/i });
   await userEvent.click(editButton);
   const emailInput = screen.getByRole("textbox", { name: /new email/i });
+  const passwordInput = screen.getByLabelText(/current password/i);
   const saveButton = screen.getByRole("button", { name: /save/i });
   await userEvent.clear(emailInput);
   await userEvent.type(emailInput, "newemail@example.com");
+  await userEvent.type(passwordInput, "currentpassword");
   await userEvent.click(saveButton);
 
   await waitFor(() => {
@@ -160,9 +164,11 @@ test("Handles API error on username update", async () => {
   });
   await userEvent.click(editButton);
   const usernameInput = screen.getByRole("textbox", { name: /new username/i });
+  const passwordInput = screen.getByLabelText(/current password/i);
   const saveButton = screen.getByRole("button", { name: /save/i });
   await userEvent.clear(usernameInput);
   await userEvent.type(usernameInput, "validusername");
+  await userEvent.type(passwordInput, "currentpassword");
   await userEvent.click(saveButton);
 
   const errorDiv = await screen.findByText(/Failed to update username/i, {

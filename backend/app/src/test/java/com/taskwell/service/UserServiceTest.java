@@ -255,6 +255,9 @@ class UserServiceTest {
         user.setVerified(true);
         user.setLocked(false);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByUsername("newusername")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -268,7 +271,7 @@ class UserServiceTest {
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidUsername(anyString())).thenReturn(true);
 
-            User updatedUser = userService.changeUsername(user.getId(), "newusername");
+            User updatedUser = userService.changeUsername(user.getId(), "newusername", "currentPassword");
 
             // Assertions
             assertNotNull(updatedUser);
@@ -290,6 +293,9 @@ class UserServiceTest {
         user.setVerified(true);
         user.setLocked(false);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         User takenUser = new User();
         takenUser.setId(2L); // Set non-null ID to avoid NPE
@@ -306,7 +312,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeUsername(user.getId(), "newusername"));
+                    () -> userService.changeUsername(user.getId(), "newusername", "currentPassword"));
             assertTrue(ex.getMessage() != null && !ex.getMessage().isEmpty());
 
             // Verifications
@@ -325,6 +331,9 @@ class UserServiceTest {
         user.setVerified(true);
         user.setLocked(false);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Set up mock authentication context with CustomUserDetails
@@ -338,7 +347,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeUsername(user.getId(), "invalid username"));
+                    () -> userService.changeUsername(user.getId(), "invalid username", "currentPassword"));
             assertTrue(ex.getMessage().contains("Invalid username"));
 
             // Verifications
@@ -357,6 +366,9 @@ class UserServiceTest {
         user.setLocked(false);
         user.setRole(UserRole.USER);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Set up mock authentication context with CustomUserDetails
@@ -370,7 +382,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeUsername(user.getId(), null));
+                    () -> userService.changeUsername(user.getId(), null, "currentPassword"));
             assertTrue(ex.getMessage().contains("Invalid username"));
 
             // Verifications
@@ -389,6 +401,9 @@ class UserServiceTest {
         user.setVerified(true);
         user.setLocked(false);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Set up mock authentication context with CustomUserDetails
@@ -402,7 +417,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeUsername(user.getId(), ""));
+                    () -> userService.changeUsername(user.getId(), "", "currentPassword"));
             assertTrue(ex.getMessage().contains("Invalid username"));
 
             // Verifications
@@ -420,6 +435,9 @@ class UserServiceTest {
         user.setRole(UserRole.USER);
         user.setVerified(true);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -433,7 +451,7 @@ class UserServiceTest {
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidEmail(anyString())).thenReturn(true);
 
-            User updatedUser = userService.changeEmail(user.getId(), "newemail@example.com");
+            User updatedUser = userService.changeEmail(user.getId(), "newemail@example.com", "currentPassword");
 
             // Assertions
             assertNotNull(updatedUser);
@@ -454,6 +472,9 @@ class UserServiceTest {
         user.setRole(UserRole.USER);
         user.setVerified(true);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.of(new User()));
 
@@ -468,7 +489,7 @@ class UserServiceTest {
 
             // Assertions
             assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeEmail(user.getId(), "newemail@example.com"));
+                    () -> userService.changeEmail(user.getId(), "newemail@example.com", "currentPassword"));
 
             // Verifications
             verify(userRepository, never()).save(user);
@@ -485,6 +506,9 @@ class UserServiceTest {
         user.setRole(UserRole.USER);
         user.setVerified(true);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Set up mock authentication context with CustomUserDetails
@@ -498,7 +522,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeEmail(user.getId(), "invalid-email"));
+                    () -> userService.changeEmail(user.getId(), "invalid-email", "currentPassword"));
             assertTrue(ex.getMessage().contains("Invalid email format"));
 
             // Verifications
@@ -516,6 +540,9 @@ class UserServiceTest {
         user.setRole(UserRole.USER);
         user.setVerified(true);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Set up mock authentication context with CustomUserDetails
@@ -529,7 +556,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeEmail(user.getId(), null));
+                    () -> userService.changeEmail(user.getId(), null, "currentPassword"));
             assertTrue(ex.getMessage().contains("Invalid email format"));
 
             // Verifications
@@ -547,6 +574,9 @@ class UserServiceTest {
         user.setRole(UserRole.USER);
         user.setVerified(true);
 
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode("currentPassword"));
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Set up mock authentication context with CustomUserDetails
@@ -560,7 +590,7 @@ class UserServiceTest {
 
             // Assertions
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changeEmail(user.getId(), ""));
+                    () -> userService.changeEmail(user.getId(), "", "currentPassword"));
             assertTrue(ex.getMessage().contains("Invalid email format"));
 
             // Verifications
@@ -678,7 +708,9 @@ class UserServiceTest {
     void changePassword_Success() {
         User user = new User();
         user.setId(1L);
-        user.setPassword("OldPassword1!");
+        // Set the user's password to the encoded value of "currentPassword"
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        user.setPassword(encoder.encode("currentPassword"));
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -686,11 +718,10 @@ class UserServiceTest {
         try (MockedStatic<ValidationUtils> mocked = mockStatic(ValidationUtils.class)) {
             mocked.when(() -> ValidationUtils.isValidPassword("NewPassword1!")).thenReturn(true);
 
-            User updatedUser = userService.changePassword(user.getId(), "NewPassword1!");
+            User updatedUser = userService.changePassword(user.getId(), "currentPassword", "NewPassword1!");
 
             // Assertions
             assertNotNull(updatedUser);
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             assertTrue(encoder.matches("NewPassword1!", updatedUser.getPassword()));
 
             // Verifications
@@ -710,7 +741,7 @@ class UserServiceTest {
             mocked.when(() -> ValidationUtils.isValidPassword("badpassword")).thenReturn(false);
 
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changePassword(user.getId(), "badpassword"));
+                    () -> userService.changePassword(user.getId(), "currentPassword", "badpassword"));
             assertTrue(ex.getMessage() != null && !ex.getMessage().isEmpty());
             // Verifications
             verify(userRepository, never()).save(user);
@@ -728,7 +759,7 @@ class UserServiceTest {
             mocked.when(() -> ValidationUtils.isValidPassword(null)).thenReturn(false);
 
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changePassword(user.getId(), null));
+                    () -> userService.changePassword(user.getId(), "currentPassword", null));
             assertTrue(ex.getMessage().contains("Password does not meet strength requirements"));
             // Verifications
             verify(userRepository, never()).save(user);
@@ -747,7 +778,7 @@ class UserServiceTest {
             mocked.when(() -> ValidationUtils.isValidPassword("")).thenReturn(false);
 
             Exception ex = assertThrows(IllegalArgumentException.class,
-                    () -> userService.changePassword(user.getId(), ""));
+                    () -> userService.changePassword(user.getId(), "currentPassword", ""));
             assertTrue(ex.getMessage() != null && !ex.getMessage().isEmpty());
             // Verifications
             verify(userRepository, never()).save(user);

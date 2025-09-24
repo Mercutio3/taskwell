@@ -162,7 +162,9 @@ textarea {
   align-items: center;
 }
 
-input + span, select + span, textarea + span {
+input + span,
+select + span,
+textarea + span {
   font-size: 0.85em;
   color: #888;
   margin-top: -0.5em;

@@ -137,8 +137,12 @@ function TaskList() {
                 {sortedTasks.map((task) => (
                   <li key={task.id} role="listitem">
                     <Link to={`/tasks/${task.id}`}>{task.title}</Link>
-                    {task.status && <span> [{formatCategory(task.status)}]</span>}
-                    {task.priority && <span> ({formatCategory(task.priority)})</span>}
+                    {task.status && (
+                      <span> [{formatCategory(task.status)}]</span>
+                    )}
+                    {task.priority && (
+                      <span> ({formatCategory(task.priority)})</span>
+                    )}
                   </li>
                 ))}
               </ul>

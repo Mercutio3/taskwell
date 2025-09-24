@@ -122,6 +122,8 @@ test("Due date validation shows error when date is in the past", async () => {
   pastDate.setDate(pastDate.getDate() - 1);
   const pastDateString = pastDate.toISOString().split("T")[0];
   await userEvent.type(dueDateInput, pastDateString);
+  const categorySelect = await screen.findByPlaceholderText(/category/i);
+  await userEvent.selectOptions(categorySelect, "WORK");
   await userEvent.click(submitButton);
 
   await waitFor(() => {
@@ -149,6 +151,8 @@ test("Successful form submission for task creation", async () => {
   futureDate.setDate(futureDate.getDate() + 1);
   const futureDateString = futureDate.toISOString().split("T")[0];
   await userEvent.type(dueDateInput, futureDateString);
+  const categorySelect = await screen.findByPlaceholderText(/category/i);
+  await userEvent.selectOptions(categorySelect, "WORK");
   await userEvent.click(submitButton);
 
   await waitFor(() => {

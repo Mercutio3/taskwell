@@ -18,6 +18,24 @@ beforeEach(() => {
   mockNavigate.mockClear();
 });
 
+beforeAll(() => {
+  global.fetch = jest.fn((url) => {
+    if (url.includes("/api/tasks/categories")) {
+      return Promise.resolve({
+        json: () => Promise.resolve(["WORK", "PERSONAL", "OTHER"]),
+      });
+    }
+    // fallback for other fetch calls
+    return Promise.resolve({
+      json: () => Promise.resolve([]),
+    });
+  });
+});
+
+afterAll(() => {
+  global.fetch.mockRestore && global.fetch.mockRestore();
+});
+
 test("Renders TaskFormPage component with correct headings", () => {
   render(
     <AuthProvider value={{ isVerified: true }}>
@@ -49,6 +67,10 @@ test("Handles successful task creation", async () => {
     "Task Description",
   );
   await userEvent.type(screen.getByPlaceholderText(/due date/i), "2026-12-31");
+  await userEvent.selectOptions(
+    screen.getByPlaceholderText(/category/i),
+    "Work",
+  );
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
   await waitFor(() => {
@@ -73,6 +95,10 @@ test("Handles task creation error for unverified user", async () => {
     "Task Description",
   );
   await userEvent.type(screen.getByPlaceholderText(/due date/i), "2026-12-31");
+  await userEvent.selectOptions(
+    screen.getByPlaceholderText(/category/i),
+    "Work",
+  );
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 
   const errors = await screen.findAllByText(
@@ -101,6 +127,10 @@ test("Handles due date in the past", async () => {
   await userEvent.type(
     screen.getByPlaceholderText(/due date/i),
     pastDateString,
+  );
+  await userEvent.selectOptions(
+    screen.getByPlaceholderText(/category/i),
+    "Work",
   );
   await userEvent.click(screen.getByRole("button", { name: /create task/i }));
 

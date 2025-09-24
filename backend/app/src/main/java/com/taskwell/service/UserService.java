@@ -140,14 +140,16 @@ public class UserService {
 
     // Update user details
     @Transactional
-    public User changeUsername(Long id, String newUsername) {
+    public User changeUsername(Long id, String newUsername, String currentPassword) {
         if (!SecurityUtils.isAdmin()) {
-            // Only allow if the authenticated user is verified and is changing their own
-            // username
             CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             if (!principal.isVerified() || !principal.getId().equals(id)) {
                 throw new AccessDeniedException("Forbidden");
+            }
+            if (!checkPassword(id, currentPassword)) {
+                logger.warn("Username change failed for user ID {}: incorrect password", id);
+                throw new IllegalArgumentException("Incorrect password");
             }
         }
 
@@ -166,14 +168,16 @@ public class UserService {
     }
 
     @Transactional
-    public User changeEmail(Long id, String newEmail) {
+    public User changeEmail(Long id, String newEmail, String currentPassword) {
         if (!SecurityUtils.isAdmin()) {
-            // Only allow if the authenticated user is verified and is changing their own
-            // email
             CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             if (!principal.isVerified() || !principal.getId().equals(id)) {
                 throw new AccessDeniedException("Forbidden");
+            }
+            if (!checkPassword(id, currentPassword)) {
+                logger.warn("Email change failed for user ID {}: incorrect password", id);
+                throw new IllegalArgumentException("Incorrect password");
             }
         }
 
@@ -248,8 +252,12 @@ public class UserService {
 
     // Change / reset password
     @Transactional
-    public User changePassword(Long id, String newPassword) {
-        User user = findByID(id); // will throw if not found
+    public User changePassword(Long id, String currentPassword, String newPassword) {
+        User user = findByID(id);
+        if (!checkPassword(id, currentPassword)) {
+            logger.warn("Password change failed for user ID {}: incorrect password", id);
+            throw new IllegalArgumentException("Incorrect current password");
+        }
         if (!ValidationUtils.isValidPassword(newPassword)) {
             logger.warn("Password change failed for user {}: weak password", user.getUsername());
             throw new IllegalArgumentException(
@@ -258,5 +266,10 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         logger.info("Password changed for user: {}", user.getUsername());
         return userRepository.save(user);
+    }
+
+    public boolean checkPassword(Long userId, String rawPassword) {
+        User user = findByID(userId);
+        return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 }

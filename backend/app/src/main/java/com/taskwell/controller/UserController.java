@@ -174,7 +174,12 @@ public class UserController {
     public ResponseEntity<User> updateUser(
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
             @Parameter(description = "ChangeUsernameRequest DTO containing new username") @Valid @RequestBody com.taskwell.dto.ChangeUsernameRequest request) {
-        User updatedUser = userService.changeUsername(id, request.getUsername());
+        if (!userService.checkPassword(id, request.getCurrentPassword())) {
+            logger.warn("Username update failed for user ID {}: incorrect current password", id);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        User updatedUser = userService.changeUsername(id, request.getUsername(), request.getCurrentPassword());
         if (updatedUser == null) {
             logger.warn("User update failed for user ID {}: user not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -195,7 +200,12 @@ public class UserController {
     public ResponseEntity<User> updateEmail(
             @Parameter(description = "ID of the user to update") @PathVariable Long id,
             @Parameter(description = "ChangeEmailRequest DTO containing new email") @Valid @RequestBody com.taskwell.dto.ChangeEmailRequest request) {
-        User updatedUser = userService.changeEmail(id, request.getEmail());
+        if (!userService.checkPassword(id, request.getCurrentPassword())) {
+            logger.warn("Email update failed for user ID {}: incorrect current password", id);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        User updatedUser = userService.changeEmail(id, request.getEmail(), request.getCurrentPassword());
         if (updatedUser == null) {
             logger.warn("Email update failed for user ID {}: user not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -263,7 +273,12 @@ public class UserController {
     public ResponseEntity<User> changeUserPassword(
             @Parameter(description = "ID of the user to change password") @PathVariable Long id,
             @Parameter(description = "ChangePasswordRequest DTO containing new password") @Valid @RequestBody com.taskwell.dto.ChangePasswordRequest request) {
-        User updatedUser = userService.changePassword(id, request.getPassword());
+        if (!userService.checkPassword(id, request.getCurrentPassword())) {
+            logger.warn("Password update failed for user ID {}: incorrect current password", id);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        User updatedUser = userService.changePassword(id, request.getCurrentPassword(), request.getPassword());
         if (updatedUser == null) {
             logger.warn("Password change failed for user ID {}: user not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
