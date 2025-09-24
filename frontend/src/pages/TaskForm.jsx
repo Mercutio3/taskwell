@@ -49,6 +49,10 @@ function TaskForm({ initialTask, onSubmit, loading, error, success }) {
       setLocalError("Due date is required");
       return;
     }
+    if (!form.category) {
+      setLocalError("Category is required");
+      return;
+    }
     // Due date validation: must not be in the past
     const today = new Date();
     today.setHours(0, 0, 0, 0);

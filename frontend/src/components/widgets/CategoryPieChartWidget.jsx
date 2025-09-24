@@ -44,6 +44,19 @@ function CategoryPieChart() {
         {error}
       </div>
     );
+  if (!data.length)
+    return (
+      <div
+        className="widget category-piechart-widget"
+        aria-label="Pie Chart of Tasks by Category"
+        role="region"
+      >
+        <h3>Tasks by Category</h3>
+        <div style={{ color: "#888", textAlign: "center", marginTop: 40 }}>
+          No tasks to display
+        </div>
+      </div>
+    );
 
   return (
     <div

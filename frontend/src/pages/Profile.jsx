@@ -19,7 +19,9 @@ function Profile() {
 
   const [showUsernameForm, setShowUsernameForm] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const handleUsernameChange = (e) => setNewUsername(e.target.value);
+  const handleCurrentPasswordChange = (e) => setCurrentPassword(e.target.value);
   const handleUsernameSubmit = async (e) => {
     e.preventDefault();
     setLoading(false);
@@ -31,13 +33,18 @@ function Profile() {
       );
       return;
     }
+    if (!currentPassword.trim()) {
+      setUsernameError("Current password is required.");
+      return;
+    }
     setLoading(true);
     try {
-      await updateUsername(user.id, newUsername);
+      await updateUsername(user.id, newUsername, currentPassword);
       setSuccess("Username updated successfully!");
       const updatedUser = await fetchCurrentUser();
       setUser(updatedUser);
       setShowUsernameForm(false);
+      setCurrentPassword("");
     } catch (err) {
       setUsernameError(err.message);
     } finally {
@@ -181,6 +188,16 @@ function Profile() {
               Username must be 3-50 characters and can only contain letters,
               numbers, dots, underscores; no consecutive dots/underscores.
             </span>
+            <label htmlFor="currentPassword">Current Password</label>
+            <input
+              id="currentPassword"
+              name="currentPassword"
+              type="password"
+              value={currentPassword}
+              onChange={handleCurrentPasswordChange}
+              aria-label="Current Password"
+            />
+            <span id="current-password-req">Enter your current password to confirm changes.</span>
             <button type="submit">Save</button>
           </form>
         )}

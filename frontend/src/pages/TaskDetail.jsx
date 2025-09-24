@@ -91,10 +91,10 @@ function TaskDetail() {
               <strong>Description:</strong> {task.description}
             </p>
             <p>
-              <strong>Status:</strong> {task.status}
+              <strong>Status:</strong> {formatCategory(task.status)}
             </p>
             <p>
-              <strong>Priority:</strong> {task.priority}
+              <strong>Priority:</strong> {formatCategory(task.priority)}
             </p>
             <p>
               <strong>Due Date:</strong>{" "}

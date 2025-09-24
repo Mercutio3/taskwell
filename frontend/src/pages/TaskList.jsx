@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import { formatCategory } from "../utils/formatting";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import StatusMessage from "../components/StatusMessage";
@@ -136,8 +137,8 @@ function TaskList() {
                 {sortedTasks.map((task) => (
                   <li key={task.id} role="listitem">
                     <Link to={`/tasks/${task.id}`}>{task.title}</Link>
-                    {task.status && <span> [{task.status}]</span>}
-                    {task.priority && <span> ({task.priority})</span>}
+                    {task.status && <span> [{formatCategory(task.status)}]</span>}
+                    {task.priority && <span> ({formatCategory(task.priority)})</span>}
                   </li>
                 ))}
               </ul>

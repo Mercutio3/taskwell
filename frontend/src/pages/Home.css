@@ -4,3 +4,10 @@
   display: block;
   margin: 10px auto;
 }
+
+.home-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
